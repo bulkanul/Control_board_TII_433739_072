@@ -108,6 +108,8 @@ void debug_mess(char* mess)
 #endif
 }
 
+extern UART_HandleTypeDef* main_huart;
+
 void send_response ( int interface_in , char *resp )
 {
 	if (interface_in == INTERFACE_ETHERNET)
@@ -125,25 +127,18 @@ void send_response ( int interface_in , char *resp )
 		HAL_UART_Transmit ( &huart1 , ( uint8_t* ) resp , strlen ( resp ) , 500 ) ;
 	else if ( interface_in == INTERFACE_USB_UART2 )
 		HAL_UART_Transmit ( &huart2 , ( uint8_t* ) resp , strlen ( resp ) , 500 ) ;
+	else if ( interface_in == INTERFACE_MAIN_UART )
+		HAL_UART_Transmit ( main_huart , ( uint8_t* ) resp , strlen ( resp ) , 500 ) ;
 }
 
 void read_last_config_data(config_struct *dest_struct){
 	int conf_struct_size = sizeof(config_struct);
-	int err = -1;
-	int repeats = 20 ;
 
 	portENTER_CRITICAL();
 
 	flash_read_config_data((uint32_t*)dest_struct,conf_struct_size,PARAMS_MEMORY_ADDR);
 	if ( * ( ( uint32_t * ) dest_struct ) == 0xFFFFFFFF )		// It's a first run
-	{//FIXME != => == 0xFFFFFFFF
 		default_conf ( dest_struct ) ;
-		while ( err == -1 && repeats > 0 )
-		{
-			err = save_last_config_data ( dest_struct , sizeof ( config_struct ) ) ;
-			repeats -- ;
-		}
-	}
 	else
 		memcpy ( get_CONF_IP()  , dest_struct->ip , 16 ) ;
 	portEXIT_CRITICAL();
@@ -275,19 +270,6 @@ int get_error(device_struct* mcs){
 	alarms_t* alarm = &mcs->alarms;
 	int err = 0;
 	err += alarm->val;
-	err += mcs->user_mode.overheat;
-	err += mcs->user_mode.ld_tec_not_ready;
-// TODO need to dicide if this section is needed
-//	for(int i = 0; i < TEC3_COUNT; i ++)
-//	{
-//		if(mcs->config.tec_onoff[i] == 1)
-//			err += (mcs->tec3[i].state.started != 1);
-//	}
-//	for(int i = 0; i < TEC3_COUNT; i ++)
-//	{
-//		if(mcs->config.tec_onoff[i] == 1)
-//			err += (mcs->tec3[i].available != 1);
-//	}
 	return err != 0;
 }
 

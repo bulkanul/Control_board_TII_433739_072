@@ -57,8 +57,8 @@
 /* USER CODE BEGIN Variables */
 device_struct mcs_storage;
 
-uint8_t uart1_rx_byte; // PSU rs232 interface
-uint8_t uart2_rx_byte;
+UART_HandleTypeDef *main_huart = &huart3;
+uint8_t main_uart_byte;
 
 #if HPLD_1000_COUNT > 0
 	uint8_t hpld_1000_can_id[HPLD_1000_COUNT] = {2};
@@ -242,7 +242,7 @@ void h_main_task(void const * argument)
 	/* Infinite loop */
 	for(;;)
 	{
-		HAL_UART_Receive_IT ( &huart2 , &uart2_rx_byte , 1 ) ;
+		HAL_UART_Receive_IT ( main_huart , &main_uart_byte , 1 ) ;
 		if (xQueueReceive(tcp_rx_data_queue, &tcp_buffer[tcp_buffer_ind], 0) == pdPASS) {
 			if (tcp_buffer[tcp_buffer_ind] == '\r' || tcp_buffer[tcp_buffer_ind] == '\n')
 			{
@@ -386,7 +386,9 @@ void h_tools(void const * argument)
 		// turn on external green led if needed
 
 		alarm_and_state_handler (mcs);
-		temp_control(temps_to_check, num_temperatures, unused_fan_temp, temps_max_levels, num_levels, &mcs->user_mode.overheat);
+		int overheat = 0;
+		temp_control(temps_to_check, num_temperatures, unused_fan_temp, temps_max_levels, num_levels, &overheat);
+		mcs->alarms.bits.overheat = overheat;
 
 		mcs->user_mode.output_started = get_emission(mcs);
 
@@ -426,24 +428,15 @@ void dev_refresh_task_h(const void *argument)
 void HAL_UART_RxCpltCallback ( UART_HandleTypeDef *huart )
 {
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE ;
-	if ( huart == &huart2){
-		if ( xQueueSendFromISR ( tcp_rx_data_queue , ( &uart2_rx_byte ) ,
+	if ( huart == main_huart){
+		if ( xQueueSendFromISR ( tcp_rx_data_queue , ( &main_uart_byte ) ,
 				&xHigherPriorityTaskWoken ) == pdPASS ){
 // OK processing
-			set_interface_in(INTERFACE_USB_UART2) ;
+			set_interface_in(INTERFACE_MAIN_UART) ;
 		} else{
 // ERROR processing
 		}
-		HAL_UART_Receive_IT ( &huart2 , &uart2_rx_byte , 1 ) ;
-	}
-	else if ( huart == &huart1){
-		if ( xQueueSendFromISR ( rs232_rx_data_queue , ( &uart1_rx_byte ) ,
-				&xHigherPriorityTaskWoken ) == pdPASS ){
-// OK processing
-		} else{
-// ERROR processing
-		}
-		HAL_UART_Receive_IT ( &huart1 , &uart1_rx_byte , 1 ) ;
+		HAL_UART_Receive_IT ( main_huart , &main_uart_byte , 1 ) ;
 	}
 
 }

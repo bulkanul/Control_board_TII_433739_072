@@ -42,7 +42,8 @@ typedef union alarms_u {
 		uint8_t keylock : 1;
 		uint8_t interlock : 1;
 		uint8_t interlock_chiller : 1;
-		uint8_t reserved2 : 3;
+		uint8_t overheat : 1;
+		uint8_t reserved : 2;
 	} bits;
 	uint8_t val;
 } alarms_t;
@@ -63,10 +64,6 @@ config_struct;
 
 typedef struct
 {
-	int   overheat;
-	int   ld_tec_not_ready;
-	int   PSU_permission;
-	int   PSU_state;
 	int   output_started;
 }
 user_mode_struct;
