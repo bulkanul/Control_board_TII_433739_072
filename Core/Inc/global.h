@@ -10,9 +10,6 @@
 
 #include "setting_project.h"
 #include "../../board_prj_driver_lib/drivers/HPLD_1000.h"
-#include "../../board_prj_driver_lib/drivers/TEC_Driver_3_drv.h"
-#include "../../board_prj_driver_lib/drivers/EVO-SSL-670-15-Control_433739_065_driver.h"
-#include "../../board_prj_driver_lib/drivers/PLD-225A480V-1620-4-U_driver.h"
 
 #include "leds.h"
 
@@ -60,15 +57,7 @@ typedef struct {
 	int        term_beta;
 	float      v_ref;
 
-	PLD_data_t psu_params;
-
-	float      tec_temp                    [TEC3_COUNT];
-	int        tec_onoff                   [TEC3_COUNT];
-
 	float      hpld1000_curr               [HPLD_1000_COUNT];
-
-	float      max_tec_temp_level          [TEC3_COUNT];
-	float      max_cb_temps_level          [2];
 }
 config_struct;
 
@@ -88,11 +77,7 @@ typedef struct {
 	config_struct                               config;
 	user_mode_struct                            user_mode;
 
-
 	hpld_1000_struct      	                    hpld_1000			[HPLD_1000_COUNT];
-	tec3_controller_struct 	                    tec3 				[TEC3_COUNT];
-	EVO_SSL_670_15_CONTROL_433739_065_struct    cb                  [CB_COUNT];
-	PLD_data_t                                  psu;
 
 	leds_t                                      leds;
 	alarms_t                                    alarms;

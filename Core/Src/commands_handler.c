@@ -6,10 +6,7 @@
 #include <stdint.h>
 
 extern void hpld_1000_command(device_struct *mcs,char* resp,char* debug_buffer,char* tcp_buffer,int i);
-extern void tec3_command(device_struct *mcs,char* resp,char* debug_buffer,char* tcp_buffer,int i);
-extern void EVO_SSL_670_15_CONTROL_433739_065_command(device_struct *mcs,char* resp,char* debug_buffer,char* tcp_buffer,int i);
 extern void admin_command(device_struct *mcs,char* resp,char* debug_buffer,char* tcp_buffer,int i);
-extern void PLD_225A480V_1620_4_U_command(device_struct *mcs,char* resp,char* debug_buffer,char* tcp_buffer,int i);
 
 static void common_command(device_struct *mcs, char *resp, char *debug_buffer, char *tcp_buffer, int i);
 
@@ -18,10 +15,7 @@ void CommandsHandler(device_struct *mcs,char* resp,char* debug_buffer,char* tcp_
 	user_command(mcs,resp,debug_buffer,tcp_buffer,i);
 
 	hpld_1000_command(mcs,resp,debug_buffer,tcp_buffer,i);
-	tec3_command(mcs,resp,debug_buffer,tcp_buffer,i);
-	EVO_SSL_670_15_CONTROL_433739_065_command(mcs, resp, debug_buffer, tcp_buffer, i);
 	admin_command(mcs, resp, debug_buffer, tcp_buffer, i);
-	PLD_225A480V_1620_4_U_command(mcs,resp,debug_buffer,tcp_buffer,i);
 
 	if(resp[0] == 'l')
 		send_response(mcs->current_interface, resp);

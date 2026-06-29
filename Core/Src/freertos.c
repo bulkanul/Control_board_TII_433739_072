@@ -231,24 +231,6 @@ void h_main_task(void const * argument)
 		hpld_1000_init(&mcs->hpld_1000[i],&hcan1,hpld_1000_can_id[i],&int_can_mess_queue,CanMutexHandle);
 #endif
 
-#if TEC3_COUNT > 0
-	for(int i = 0; i < TEC3_COUNT; i ++)
-	{
-		tec3_controller_struct *dev = &mcs->tec3[i];
-		tec3_init(dev, &hcan1, tec3_can_id[i], &int_can_mess_queue, CanMutexHandle);
-		if(mcs->config.tec_temp[i] > 10 && mcs->config.tec_temp[i] < 100)
-		{
-			tec3_set_temperature_0(dev, mcs->config.tec_temp[i]);
-			tec3_set_start_stop(dev, mcs->config.tec_onoff[i]);
-		}
-	}
-#endif
-
-#if CB_COUNT > 0
-	for(int i = 0; i < CB_COUNT; i ++)
-		EVO_SSL_670_15_CONTROL_433739_065_init(&mcs->cb[i], &hcan1, cb_can_id[i], &int_can_mess_queue, CanMutexHandle);
-#endif
-
 	osThreadResume(server_taskHandle);
 	osThreadResume(indi_taskHandle);
 	osThreadResume(can_sendHandle);
@@ -256,10 +238,6 @@ void h_main_task(void const * argument)
 
 	 osThreadDef ( dev_refresh , dev_refresh_task_h, osPriorityNormal, 1, 256);
 	 dev_refresh_taskHandle = osThreadCreate(osThread(dev_refresh), NULL);
-
-
-	 osThreadDef ( oriental_laser_task , vTaskPLD, osPriorityNormal, 1, 256);
-	 oriental_laser_taskHandle = osThreadCreate(osThread(oriental_laser_task), NULL);
 
 	/* Infinite loop */
 	for(;;)
@@ -293,12 +271,6 @@ void h_main_task(void const * argument)
 		// clear response buffer to prepare for next cycle begin
 		mcs->current_interface = get_interface_in();
 		// clear response buffer to prepare for next cycle end
-		if(!PLD_initialized)
-			if(PLD_IsConnected())
-			{
-				PLD_SetParams(&mcs->config.psu_params);
-				PLD_initialized = 1;
-			}
 	}
   /* USER CODE END h_main_task */
 }
@@ -387,20 +359,20 @@ void h_tools(void const * argument)
   /* USER CODE BEGIN h_tools */
 	device_struct* mcs = &mcs_storage;
 	float *temps_to_check[] = {
-		&mcs->tec3[0].state.temp,
-		&mcs->tec3[1].state.temp,
-		&mcs->tec3[2].state.temp,
-		&mcs->tec3[3].state.temp,
-		&mcs->cb[0].state.temp[0],
-		&mcs->cb[0].state.temp[1]
+//		&mcs->tec3[0].state.temp,
+//		&mcs->tec3[1].state.temp,
+//		&mcs->tec3[2].state.temp,
+//		&mcs->tec3[3].state.temp,
+//		&mcs->cb[0].state.temp[0],
+//		&mcs->cb[0].state.temp[1]
 	};
 	float *temps_max_levels[] = {
-		&mcs->config.max_tec_temp_level[0],
-		&mcs->config.max_tec_temp_level[1],
-		&mcs->config.max_tec_temp_level[2],
-		&mcs->config.max_tec_temp_level[3],
-		&mcs->config.max_cb_temps_level[0],
-		&mcs->config.max_cb_temps_level[1]
+//		&mcs->config.max_tec_temp_level[0],
+//		&mcs->config.max_tec_temp_level[1],
+//		&mcs->config.max_tec_temp_level[2],
+//		&mcs->config.max_tec_temp_level[3],
+//		&mcs->config.max_cb_temps_level[0],
+//		&mcs->config.max_cb_temps_level[1]
 	};
 	const int num_temperatures = sizeof(temps_to_check) / sizeof(float);
 	const int num_levels = sizeof(temps_max_levels) / sizeof(float);
@@ -412,39 +384,13 @@ void h_tools(void const * argument)
 	{
 		int err = 0;
 		// turn on external green led if needed
-		if(mcs->cb[0].state.green_led[0]!= 1)
-			EVO_SSL_670_15_CONTROL_433739_065_set_led_green(&mcs->cb[0], 0, 1);
-
-		if(mcs->cb[0].state.green_led[1] != mcs->user_mode.PSU_permission)
-			EVO_SSL_670_15_CONTROL_433739_065_set_led_green(&mcs->cb[0], 1, mcs->user_mode.PSU_permission);
 
 		alarm_and_state_handler (mcs);
 		temp_control(temps_to_check, num_temperatures, unused_fan_temp, temps_max_levels, num_levels, &mcs->user_mode.overheat);
 
 		mcs->user_mode.output_started = get_emission(mcs);
-		if(mcs->cb[0].state.orange_led != mcs->user_mode.output_started)
-			EVO_SSL_670_15_CONTROL_433739_065_set_led_orange(&mcs->cb[0], mcs->user_mode.output_started);
-
-		TEC_temperature_check(mcs);
 
 		err += get_error(mcs);
-		if(mcs->cb[0].state.red_led != (err!=0))
-			EVO_SSL_670_15_CONTROL_433739_065_set_led_red(&mcs->cb[0], (err!=0));
-
-		if(mcs->psu.mode_state.bits.output)
-		{
-			int psu_err = 0;
-			psu_err += mcs->psu.mode_state.bits.no_flow;
-			psu_err += !mcs->psu.mode_state.bits.no_overcurrent;
-			psu_err += !mcs->psu.mode_state.bits.no_overtemp;
-			psu_err += !mcs->psu.mode_state.bits.no_overvoltage;
-			if(psu_err)
-			{
-				PLD_data_t p = mcs->psu;
-				p.mode_state.val = 0x1A; // External trigger Off
-				PLD_SetParams(&p);
-			}
-		}
 
 		// internal leds control
 		(mcs->user_mode.output_started == 0)?mcs->leds.panel.emission.off():mcs->leds.panel.emission.on();
@@ -462,38 +408,6 @@ void h_tools(void const * argument)
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
 
-void TEC_temperature_check(device_struct* mcs)
-{
-#define OK_STATE_TIME 30
-	static uint32_t ok_state_time_for_all = 0;
-	static uint32_t last_ok_state_time_for_all = 0;
-	int ok_state = 1;
-//	for(int i = 0; i < TEC3_COUNT; i ++)
-		if(mcs->config.tec_onoff[2] == 1)
-			if(abs_f(mcs->tec3[2].state.temp - mcs->config.tec_temp[2]) > TEMPERATURE_GAP_FOR_LD)
-				ok_state = 0;
-
-	if(ok_state == 0)
-	{
-		ok_state_time_for_all = 0;
-		last_ok_state_time_for_all = osKernelSysTick();
-	}
-	else
-	{
-		uint32_t tick = osKernelSysTick();
-		ok_state_time_for_all += (tick - last_ok_state_time_for_all);
-		last_ok_state_time_for_all = tick;
-	}
-
-	if((float)ok_state_time_for_all/1000 > OK_STATE_TIME)
-	{
-		ok_state_time_for_all = (OK_STATE_TIME+1)*1000;
-		mcs->user_mode.ld_tec_not_ready = 0;
-	}
-	else
-		mcs->user_mode.ld_tec_not_ready = 1;
-}
-
 void dev_refresh_task_h(const void *argument)
 {
 	//	device_struct *mcs = &mcs_storage ;
@@ -504,14 +418,6 @@ void dev_refresh_task_h(const void *argument)
 	{
 		for(int i = 0; i < HPLD_1000_COUNT; i ++)
 			refresh_hpld_1000_state(&mcs->hpld_1000[i]);
-		for(int i = 0; i < TEC3_COUNT; i ++)
-			refresh_tec3_state(&mcs->tec3[i]);
-		for(int i = 0; i < CB_COUNT; i ++)
-			refresh_EVO_SSL_670_15_CONTROL_433739_065_state(&mcs->cb[i]);
-		PLD_data_t p;
-		PLD_GetMeasured(&p);   // читаем текущее
-		memcpy(&mcs->psu,&p,sizeof(PLD_data_t));
-		mcs->user_mode.PSU_state = mcs->psu.mode_state.bits.output;
 		osDelay(10);
 	}
 	dev_refresh_task_state = 0;
