@@ -12,7 +12,7 @@
 #define RECV_OK_TIMEOUT                 100000
 
 /* Change this section according to the device -------------------------------*/
-#define PROTOCOL_VERSION                "EVO_SSL_670_5\r"
+#define PROTOCOL_VERSION                "Control_board_TII\r"
 /* ---------------------------------------------------------------------------*/
 
 #define HPLD_1000_COUNT 				(1)
