@@ -126,11 +126,13 @@ static void ethernet_link_status_updated(struct netif *netif)
   if (netif_is_up(netif))
   {
 /* USER CODE BEGIN 5 */
+	  ethernetif_notify_conn_changed(netif);
 /* USER CODE END 5 */
   }
   else /* netif is down */
   {
 /* USER CODE BEGIN 6 */
+	  ethernetif_notify_conn_changed(netif);
 /* USER CODE END 6 */
   }
 }

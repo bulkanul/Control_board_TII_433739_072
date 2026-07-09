@@ -173,12 +173,12 @@ void ethernetif_notify_conn_changed(struct netif *netif){
 	uint8_t link_state;
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 	if(netif_is_link_up(netif)){
-	link_state = 1;
-    netif_set_up(netif);
+		link_state = 1;
+		netif_set_up(netif);
 	}
 	else {
-	link_state = 0;
-    netif_set_down(netif);
+		link_state = 0;
+		netif_set_down(netif);
 	}
 	xQueueSendFromISR(link_queueHandle,&link_state,&xHigherPriorityTaskWoken);
 }

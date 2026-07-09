@@ -138,7 +138,10 @@ void read_last_config_data(config_struct *dest_struct){
 
 	flash_read_config_data((uint32_t*)dest_struct,conf_struct_size,PARAMS_MEMORY_ADDR);
 	if ( * ( ( uint32_t * ) dest_struct ) == 0xFFFFFFFF )		// It's a first run
+	{
 		default_conf ( dest_struct ) ;
+		memcpy ( get_CONF_IP()  , dest_struct->ip , 16 ) ;
+	}
 	else
 		memcpy ( get_CONF_IP()  , dest_struct->ip , 16 ) ;
 	portEXIT_CRITICAL();
