@@ -15,7 +15,7 @@
 #define PROTOCOL_VERSION                "Control_board_TII\r"
 /* ---------------------------------------------------------------------------*/
 
-#define HPLD_1500_COUNT 				(1)
+#define HPLD_1500_COUNT 				(10)
 #define ADMN_COUNT 		          		(1)
 
 #define	CAN_IND_REQ                      200

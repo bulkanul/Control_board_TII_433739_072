@@ -214,8 +214,6 @@ void h_main_task(void const * argument)
 	char resp [1000];
 	long tcp_buffer_ind = 0 ;
 
-	int PLD_initialized = 0;
-
 	for(int try = 0; try < 3;try++){
 		alarm_and_state_handler(mcs);
 #ifndef TB_DEF
@@ -229,9 +227,9 @@ void h_main_task(void const * argument)
 	can_start_module(&hcan1);
 	osDelay(3000);
 
-#if HPLD_1000_COUNT > 0
-	for(uint16_t i = 0; i < HPLD_1000_COUNT;i++)
-		hpld_1000_init(&mcs->hpld_1000[i],&hcan1,hpld_1000_can_id[i],&int_can_mess_queue,CanMutexHandle);
+#if HPLD_1500_COUNT > 0
+	for(uint16_t i = 0; i < HPLD_1500_COUNT;i++)
+		hpld_1500_init(&mcs->hpld_1500[i],&hcan1,hpld_1500_can_id[i],&int_can_mess_queue,CanMutexHandle);
 #endif
 
 	osThreadResume(server_taskHandle);
