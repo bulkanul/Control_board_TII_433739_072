@@ -63,6 +63,9 @@ uint8_t main_uart_byte;
 #if HPLD_1000_COUNT > 0
 	uint8_t hpld_1000_can_id[HPLD_1000_COUNT] = {2};
 #endif
+#if HPLD_1500_COUNT > 0
+	uint8_t hpld_1500_can_id[HPLD_1500_COUNT] = {1,2,3,4,5,6,7,8,9,10};
+#endif
 #if TEC3_COUNT > 0
 	uint8_t tec3_can_id[TEC3_COUNT] = {3,4,5,6};
 #endif
@@ -418,8 +421,8 @@ void dev_refresh_task_h(const void *argument)
 	/* Infinite loop */
 	for(;;)
 	{
-		for(int i = 0; i < HPLD_1000_COUNT; i ++)
-			refresh_hpld_1000_state(&mcs->hpld_1000[i]);
+		for(int i = 0; i < HPLD_1500_COUNT; i ++)
+			refresh_hpld_1500_state(&mcs->hpld_1500[i]);
 		osDelay(10);
 	}
 	dev_refresh_task_state = 0;

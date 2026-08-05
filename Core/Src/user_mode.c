@@ -120,7 +120,7 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 					mcs->alarms.bits.interlock,
 					mcs->alarms.bits.interlock_chiller,
 					mcs->alarms.bits.overheat,
-					mcs->hpld_1000[0].state.started_state,
+					mcs->hpld_1500[0].state.started_state,
 					mcs->user_mode.output_started
 			);
 		}

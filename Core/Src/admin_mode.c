@@ -18,18 +18,18 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 		else if (cmd("lsconf admn")) {
 			rd("lsconf admn %i %f\r\n",
 				&id,
-				&conf->hpld1000_curr [0]
+				&conf->hpld1500_curr [0]
 			);
 			response("lrconf admn %i %f\r\n",
 				id,
-				conf->hpld1000_curr [0]
+				conf->hpld1500_curr [0]
 			);
 		}
 //-----------REQUEST GET CONF ----------------
 		else if (cmd("lgconf admn")) {
 			response("lrconf admn %i %f\r\n",
 				id,
-				conf->hpld1000_curr [0]
+				conf->hpld1500_curr [0]
 			);
 		}
 //-----------REQUEST SET SAVE CONF ------------
