@@ -31,6 +31,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>Core/Src/drivers/HPLD_1500.c</name>
+			<type>1</type>
+			<locationURI>$%7BPROJECT_LOC%7D/board_prj_driver_lib/drivers/HPLD_1500.c</locationURI>
+		</link>
+		<link>
 			<name>Core/Src/tools/temp_control.c</name>
 			<type>1</type>
 			<locationURI>$%7BPROJECT_LOC%7D/board_prj_driver_lib/tools/temp_control.c</locationURI>
