@@ -9,7 +9,7 @@
 #endif
 
 #include "setting_project.h"
-#include "../../board_prj_driver_lib/drivers/HPLD_1000.h"
+#include "../../board_prj_driver_lib/drivers/HPLD_1500.h"
 
 #include "leds.h"
 
@@ -58,7 +58,7 @@ typedef struct {
 	int        term_beta;
 	float      v_ref;
 
-	float      hpld1000_curr               [HPLD_1000_COUNT];
+	float      hpld1500_curr               [HPLD_1500_COUNT];
 }
 config_struct;
 
@@ -74,7 +74,7 @@ typedef struct {
 	config_struct                               config;
 	user_mode_struct                            user_mode;
 
-	hpld_1000_struct      	                    hpld_1000			[HPLD_1000_COUNT];
+	hpld_1500_t      	                        hpld_1500			[HPLD_1500_COUNT];
 
 	leds_t                                      leds;
 	alarms_t                                    alarms;

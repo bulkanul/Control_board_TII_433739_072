@@ -5,7 +5,7 @@
 
 #include <stdint.h>
 
-extern void hpld_1000_command(device_struct *mcs,char* resp,char* debug_buffer,char* tcp_buffer,int i);
+extern void hpld_1500_command(device_struct *mcs,char* resp,char* debug_buffer,char* tcp_buffer,int i);
 extern void admin_command(device_struct *mcs,char* resp,char* debug_buffer,char* tcp_buffer,int i);
 
 static void common_command(device_struct *mcs, char *resp, char *debug_buffer, char *tcp_buffer, int i);
@@ -14,7 +14,7 @@ void CommandsHandler(device_struct *mcs,char* resp,char* debug_buffer,char* tcp_
 	common_command(mcs, resp, debug_buffer, tcp_buffer, i);
 	user_command(mcs,resp,debug_buffer,tcp_buffer,i);
 
-	hpld_1000_command(mcs,resp,debug_buffer,tcp_buffer,i);
+	hpld_1500_command(mcs,resp,debug_buffer,tcp_buffer,i);
 	admin_command(mcs, resp, debug_buffer, tcp_buffer, i);
 
 	if(resp[0] == 'l')

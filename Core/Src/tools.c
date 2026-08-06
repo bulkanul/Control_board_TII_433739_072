@@ -312,16 +312,16 @@ void form_cm_header(can_message_struct *cm, int id){
 int protection_err_clr(device_struct *mcs)
 {
 	int err = 0;
-	for(int i = 0 ; i < HPLD_1000_COUNT; i ++)
+	for(int i = 0 ; i < HPLD_1500_COUNT; i ++)
 	{
-		hpld_1000_struct *dev = &mcs->hpld_1000[i];
+		hpld_1500_t *dev = &mcs->hpld_1500[i];
 		if (dev->available == 1)
 		{
 			int reps = 5;
 			while (reps-- > 0 && dev->state.flags != 0)
 			{
-				err += hpld_1000_rst_protection(dev);
-				hpld_1000_get_flags(dev);
+				err += hpld_1500_rst_protection(dev);
+				hpld_1500_get_flags(dev);
 				osDelay(1);
 			}
 		}

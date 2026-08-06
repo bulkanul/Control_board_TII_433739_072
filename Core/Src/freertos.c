@@ -63,6 +63,9 @@ uint8_t main_uart_byte;
 #if HPLD_1000_COUNT > 0
 	uint8_t hpld_1000_can_id[HPLD_1000_COUNT] = {2};
 #endif
+#if HPLD_1500_COUNT > 0
+	uint8_t hpld_1500_can_id[HPLD_1500_COUNT] = {1,2,3,4,5,6,7,8,9,10};
+#endif
 #if TEC3_COUNT > 0
 	uint8_t tec3_can_id[TEC3_COUNT] = {3,4,5,6};
 #endif
@@ -211,8 +214,6 @@ void h_main_task(void const * argument)
 	char resp [1000];
 	long tcp_buffer_ind = 0 ;
 
-	int PLD_initialized = 0;
-
 	for(int try = 0; try < 3;try++){
 		alarm_and_state_handler(mcs);
 #ifndef TB_DEF
@@ -226,9 +227,9 @@ void h_main_task(void const * argument)
 	can_start_module(&hcan1);
 	osDelay(3000);
 
-#if HPLD_1000_COUNT > 0
-	for(uint16_t i = 0; i < HPLD_1000_COUNT;i++)
-		hpld_1000_init(&mcs->hpld_1000[i],&hcan1,hpld_1000_can_id[i],&int_can_mess_queue,CanMutexHandle);
+#if HPLD_1500_COUNT > 0
+	for(uint16_t i = 0; i < HPLD_1500_COUNT;i++)
+		hpld_1500_init(&mcs->hpld_1500[i],&hcan1,hpld_1500_can_id[i],&int_can_mess_queue,CanMutexHandle);
 #endif
 
 	osThreadResume(server_taskHandle);
@@ -418,8 +419,8 @@ void dev_refresh_task_h(const void *argument)
 	/* Infinite loop */
 	for(;;)
 	{
-		for(int i = 0; i < HPLD_1000_COUNT; i ++)
-			refresh_hpld_1000_state(&mcs->hpld_1000[i]);
+		for(int i = 0; i < HPLD_1500_COUNT; i ++)
+			refresh_hpld_1500_state(&mcs->hpld_1500[i]);
 		osDelay(10);
 	}
 	dev_refresh_task_state = 0;
