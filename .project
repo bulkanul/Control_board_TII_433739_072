@@ -48,7 +48,7 @@
 		<link>
 			<name>Core/Src/tools/temp_calc.c</name>
 			<type>1</type>
-			<location>C:/projects/Control_board_TII_433739_072/board_prj_driver_lib/tools/temp_calc.c</location>
+			<locationURI>$%7BPROJECT_LOC%7D/board_prj_driver_lib/tools/temp_calc.c</locationURI>
 		</link>
 		<link>
 			<name>Core/Src/tools/temp_control.c</name>
