@@ -34,7 +34,7 @@
 #define MCS_CAN_ID                       0x22
 
 /* Change this section according to the device -------------------------------*/
-#define ADC_AVERAGE_COUNT	500
+#define ADC_AVERAGE_COUNT	             500
 
 #if HPLD_1500_COUNT > 0
 #define HPLD_1500_CURRENT_TOLERANCE      (0.02)

@@ -438,6 +438,7 @@ void h_tools(void const * argument)
 			user_mode_prepare ();
 			create_usr_offtaskHandle ();
 		}
+		osDelay(1);
 	}
   /* USER CODE END h_tools */
 }
