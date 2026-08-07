@@ -45,6 +45,7 @@ void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -54,46 +55,60 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOG_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, LED_ERROR_Pin|LED_EMISSION_Pin|LED_POWER_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOE, CS4_Pin|CS3_Pin|CS2_Pin|CS1_Pin
+                          |LED_POWER2_Pin|LED_POWER_Pin|LED_EMISSION_Pin|LED_ERROR_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, LED_RED_Pin|LED_YELLOW_Pin|LED_GREEN_Pin|RS485_RSE_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOD, PROTECTION_ON_OFF_1_Pin|PROTECTION_ON_OFF_2_Pin|SHUTDOWN_Pin|LED_RED_Pin
+                          |LED_YELLOW_Pin|LED_GREEN_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(PS_ENABLE_GPIO_Port, PS_ENABLE_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(PILOT_ON_OFF_GPIO_Port, PILOT_ON_OFF_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : LED_ERROR_Pin LED_EMISSION_Pin LED_POWER_Pin */
-  GPIO_InitStruct.Pin = LED_ERROR_Pin|LED_EMISSION_Pin|LED_POWER_Pin;
+  /*Configure GPIO pins : INTERLOCK_1_EXTI_Pin INTERLOCK_2_EXTI_Pin ALARM_EXTI_Pin QBH_EXTI_Pin
+                           KEY_EXTI_Pin EMERGENCY_EXTI_Pin */
+  GPIO_InitStruct.Pin = INTERLOCK_1_EXTI_Pin|INTERLOCK_2_EXTI_Pin|ALARM_EXTI_Pin|QBH_EXTI_Pin
+                          |KEY_EXTI_Pin|EMERGENCY_EXTI_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : FLASH_ON_IN_Pin */
+  GPIO_InitStruct.Pin = FLASH_ON_IN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(FLASH_ON_IN_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : CS4_Pin CS3_Pin CS2_Pin CS1_Pin
+                           LED_POWER2_Pin LED_POWER_Pin LED_EMISSION_Pin LED_ERROR_Pin */
+  GPIO_InitStruct.Pin = CS4_Pin|CS3_Pin|CS2_Pin|CS1_Pin
+                          |LED_POWER2_Pin|LED_POWER_Pin|LED_EMISSION_Pin|LED_ERROR_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : EMERGENCY_Pin Keylock_Pin */
-  GPIO_InitStruct.Pin = EMERGENCY_Pin|Keylock_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : LED_RED_Pin LED_YELLOW_Pin LED_GREEN_Pin RS485_RSE_Pin */
-  GPIO_InitStruct.Pin = LED_RED_Pin|LED_YELLOW_Pin|LED_GREEN_Pin|RS485_RSE_Pin;
+  /*Configure GPIO pins : PROTECTION_ON_OFF_1_Pin PROTECTION_ON_OFF_2_Pin SHUTDOWN_Pin LED_RED_Pin
+                           LED_YELLOW_Pin LED_GREEN_Pin */
+  GPIO_InitStruct.Pin = PROTECTION_ON_OFF_1_Pin|PROTECTION_ON_OFF_2_Pin|SHUTDOWN_Pin|LED_RED_Pin
+                          |LED_YELLOW_Pin|LED_GREEN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : CHILLER_INTERLOCK_Pin INTERLOCK_Pin */
-  GPIO_InitStruct.Pin = CHILLER_INTERLOCK_Pin|INTERLOCK_Pin;
+  /*Configure GPIO pins : ALARM_PD4_Pin ALARM_PD3_Pin ALARM_PD2_Pin ALARM_PD1_Pin */
+  GPIO_InitStruct.Pin = ALARM_PD4_Pin|ALARM_PD3_Pin|ALARM_PD2_Pin|ALARM_PD1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PS_ENABLE_Pin */
-  GPIO_InitStruct.Pin = PS_ENABLE_Pin;
+  /*Configure GPIO pin : PILOT_ON_OFF_Pin */
+  GPIO_InitStruct.Pin = PILOT_ON_OFF_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(PS_ENABLE_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(PILOT_ON_OFF_GPIO_Port, &GPIO_InitStruct);
 
 }
 
