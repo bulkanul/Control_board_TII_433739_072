@@ -41,6 +41,16 @@
 			<locationURI>$%7BPROJECT_LOC%7D/board_prj_driver_lib/drivers/HPLD_1500.c</locationURI>
 		</link>
 		<link>
+			<name>Core/Src/tools/adc_handler.c</name>
+			<type>1</type>
+			<locationURI>$%7BPROJECT_LOC%7D/board_prj_driver_lib/tools/adc_handler.c</locationURI>
+		</link>
+		<link>
+			<name>Core/Src/tools/temp_calc.c</name>
+			<type>1</type>
+			<location>C:/projects/Control_board_TII_433739_072/board_prj_driver_lib/tools/temp_calc.c</location>
+		</link>
+		<link>
 			<name>Core/Src/tools/temp_control.c</name>
 			<type>1</type>
 			<locationURI>$%7BPROJECT_LOC%7D/board_prj_driver_lib/tools/temp_control.c</locationURI>

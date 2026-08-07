@@ -113,12 +113,14 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 
 		//-------------REQUEST TO GET LASER STATUS IS USER MODE-----------
 		if (cmd ("lgstatus usr")) {
-			response ("lrstatus usr %i %i %i %i %i %i %i\r\n",
+			response ("lrstatus usr %i %i %i %i %i %i %i %i %i\r\n",
 					id,
-					mcs->alarms.bits.emergency,
 					mcs->alarms.bits.keylock,
-					mcs->alarms.bits.interlock,
-					mcs->alarms.bits.interlock_chiller,
+					mcs->alarms.bits.alarm,
+					mcs->alarms.bits.emergency,
+					mcs->alarms.bits.interlock1,
+					mcs->alarms.bits.interlock2,
+					mcs->alarms.bits.qbh,
 					mcs->alarms.bits.overheat,
 					mcs->user_mode.output_started
 			);
@@ -141,18 +143,6 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 			mcs->alarms.val = 0;
 			protection_err_clr(mcs);
 			response ("lrerrclr usr %i\r\n", id);
-		}
-		else if (cmd ("lspsupermission usr")) {
-			rd ("lspsupermission usr %i %i", &id, &i_val);
-			err += (i_val != 0 && i_val != 1);
-			if (!err)
-			{
-				if(i_val == 1)
-					PS_Enable_on_override(mcs);
-				else
-					PS_Enable_off_override(mcs);
-			}
-			response ("lrpsupermission usr %i %i\r\n", id, i_val);
 		}
 		//-----------REQUEST TO SET QUANTRON MODE---------
 		else if(cmd("lsmode usr")){

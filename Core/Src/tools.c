@@ -123,10 +123,10 @@ void send_response ( int interface_in , char *resp )
 #endif
 
 	}
-	else if ( interface_in == INTERFACE_USB_UART1 )
-		HAL_UART_Transmit ( &huart1 , ( uint8_t* ) resp , strlen ( resp ) , 500 ) ;
-	else if ( interface_in == INTERFACE_USB_UART2 )
-		HAL_UART_Transmit ( &huart2 , ( uint8_t* ) resp , strlen ( resp ) , 500 ) ;
+//	else if ( interface_in == INTERFACE_USB_UART1 )
+//		HAL_UART_Transmit ( &huart1 , ( uint8_t* ) resp , strlen ( resp ) , 500 ) ;
+//	else if ( interface_in == INTERFACE_USB_UART2 )
+//		HAL_UART_Transmit ( &huart2 , ( uint8_t* ) resp , strlen ( resp ) , 500 ) ;
 	else if ( interface_in == INTERFACE_MAIN_UART )
 		HAL_UART_Transmit ( main_huart , ( uint8_t* ) resp , strlen ( resp ) , 500 ) ;
 }
@@ -274,10 +274,12 @@ int get_error(device_struct* mcs){
 
 void alarm_and_state_handler (device_struct *mcs)
 {
+	mcs->alarms.bits.alarm             = 	is_alarm_ALARM();
 	mcs->alarms.bits.emergency         = 	is_alarm_emergency();
 	mcs->alarms.bits.keylock           =    is_alarm_keylock();
-	mcs->alarms.bits.interlock         = 	is_alarm_interlock();
-	mcs->alarms.bits.interlock_chiller = 	is_alarm_chiller_interlock();
+	mcs->alarms.bits.interlock1        = 	is_alarm_interlock1();
+	mcs->alarms.bits.interlock2        = 	is_alarm_interlock2();
+	mcs->alarms.bits.qbh               = 	is_alarm_QBH();
 }
 
 int get_emission(device_struct* mcs){

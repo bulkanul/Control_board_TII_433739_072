@@ -42,17 +42,19 @@
 #pragma pack(push, 1)
 typedef union alarms_u {
 	struct {
-		uint8_t emergency : 1;
-		uint8_t keylock : 1;
-		uint8_t interlock : 1;
-		uint8_t interlock_chiller : 1;
-		uint8_t overheat : 1;
-		uint8_t reserved : 2;
+		uint32_t keylock : 1;
+		uint32_t emergency : 1;
+		uint32_t alarm : 1;
+		uint32_t qbh : 1;
+		uint32_t interlock1 : 1;
+		uint32_t interlock2 : 1;
+		uint32_t overheat : 1;
+		uint32_t reserved : 25;
 	} bits;
-	uint8_t val;
+	uint32_t val;
 } alarms_t;
 #pragma pack(pop)
-static_assert(sizeof(alarms_t) == 1, "alarms_t must be exactly 1 bytes!");
+static_assert(sizeof(alarms_t) == 4, "alarms_t must be exactly 4 bytes!");
 
 typedef struct {
 	uint32_t   ip [4];
