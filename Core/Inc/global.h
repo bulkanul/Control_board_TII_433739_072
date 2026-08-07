@@ -9,8 +9,12 @@
 #endif
 
 #include "setting_project.h"
+#if HPLD_1500_COUNT > 0
 #include "../../board_prj_driver_lib/drivers/HPLD_1500.h"
-
+#endif
+#if HPLD_1000_COUNT > 0
+#include "../../board_prj_driver_lib/drivers/HPLD_1000.h"
+#endif
 #include "leds.h"
 
 #include <assert.h>
@@ -58,7 +62,12 @@ typedef struct {
 	int        term_beta;
 	float      v_ref;
 
+#if HPLD_1000_COUNT > 0
+	float      hpld1000_curr               [HPLD_1000_COUNT];
+#endif
+#if HPLD_1500_COUNT > 0
 	float      hpld1500_curr               [HPLD_1500_COUNT];
+#endif
 }
 config_struct;
 
@@ -74,7 +83,12 @@ typedef struct {
 	config_struct                               config;
 	user_mode_struct                            user_mode;
 
+#if HPLD_1500_COUNT > 0
 	hpld_1500_t      	                        hpld_1500			[HPLD_1500_COUNT];
+#endif
+#if HPLD_1000_COUNT > 0
+	hpld_1000_struct   	                        hpld_1000			[HPLD_1000_COUNT];
+#endif
 
 	leds_t                                      leds;
 	alarms_t                                    alarms;

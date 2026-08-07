@@ -15,7 +15,8 @@
 #define PROTOCOL_VERSION                "Control_board_TII\r"
 /* ---------------------------------------------------------------------------*/
 
-#define HPLD_1500_COUNT 				(10)
+#define HPLD_1500_COUNT 				(7)
+#define HPLD_1000_COUNT 				(2)
 #define ADMN_COUNT 		          		(1)
 
 #define	CAN_IND_REQ                      200
@@ -32,7 +33,12 @@
 #define MCS_CAN_ID                       0x22
 
 /* Change this section according to the device -------------------------------*/
+#if HPLD_1500_COUNT > 0
 #define HPLD_1500_CURRENT_TOLERANCE      (0.02)
+#endif
+#if HPLD_1000_COUNT > 0
+#define HPLD_1000_CURRENT_TOLERANCE      (0.02)
+#endif
 #define AFTER_START_TEMP_STABILIZE_TIME  (180)          //sec
 #define AFTER_START_DELAY                (10)           //sec
 #define TEMPERATURE_GAP_FOR_LD           (0.2)

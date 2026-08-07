@@ -231,6 +231,10 @@ void h_main_task(void const * argument)
 	for(uint16_t i = 0; i < HPLD_1500_COUNT;i++)
 		hpld_1500_init(&mcs->hpld_1500[i],&hcan1,hpld_1500_can_id[i],&int_can_mess_queue,CanMutexHandle);
 #endif
+#if HPLD_1000_COUNT > 0
+	for(uint16_t i = 0; i < HPLD_1000_COUNT;i++)
+		hpld_1500_init(&mcs->hpld_1000[i],&hcan1,hpld_1000_can_id[i],&int_can_mess_queue,CanMutexHandle);
+#endif
 
 	osThreadResume(server_taskHandle);
 	osThreadResume(indi_taskHandle);
@@ -419,8 +423,14 @@ void dev_refresh_task_h(const void *argument)
 	/* Infinite loop */
 	for(;;)
 	{
+#if HPLD_1500_COUNT > 0
 		for(int i = 0; i < HPLD_1500_COUNT; i ++)
 			refresh_hpld_1500_state(&mcs->hpld_1500[i]);
+#endif
+#if HPLD_1000_COUNT > 0
+		for(int i = 0; i < HPLD_1000_COUNT; i ++)
+			refresh_hpld_1000_state(&mcs->hpld_1000[i]);
+#endif
 		osDelay(10);
 	}
 	dev_refresh_task_state = 0;
