@@ -157,6 +157,9 @@ void default_conf ( config_struct *dest_struct )
 	dest_struct->mac[3] = 0x00;
 	dest_struct->mac[4] = 0x00;
 	dest_struct->mac[5] = 0x0B;
+	dest_struct->therm_resi = 10000;
+	dest_struct->therm_beta = 3750;
+	dest_struct->v_ref = 3.3;
 }
 
 
