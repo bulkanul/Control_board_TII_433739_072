@@ -5,19 +5,20 @@
 //#define DEMO
 //#define DEBUG_OVER_TCP 1
 
-#define SERVER_PORT                     7878 // NN
+#define SERVER_PORT                      7878 // NN
 
-#define TCP_QUEUE_BUF_SIZE              1000
-#define RS232_QUEUE_BUF_SIZE            (100)
-#define RECV_OK_TIMEOUT                 100000
+#define TCP_QUEUE_BUF_SIZE               1000
+#define RS232_QUEUE_BUF_SIZE             (100)
+#define RECV_OK_TIMEOUT                  100000
 
 /* Change this section according to the device -------------------------------*/
-#define PROTOCOL_VERSION                "Control_board_TII\r"
+#define PROTOCOL_VERSION                 "Control_board_TII\r"
 /* ---------------------------------------------------------------------------*/
 
-#define HPLD_1500_COUNT 				(7)
-#define HPLD_1000_COUNT 				(2)
-#define ADMN_COUNT 		          		(1)
+#define HPLD_1500_COUNT 				 (7)
+#define HPLD_1000_COUNT 				 (2)
+#define ADMN_COUNT 		          		 (1)
+#define THERMISTOR_COUNT                 (2)
 
 #define	CAN_IND_REQ                      200
 #define	ETH_IND_REQ                      201

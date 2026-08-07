@@ -35,6 +35,8 @@
 #include "../Inc/commands_handler.h"
 #include "../Inc/hardware.h"
 #include "../../board_prj_driver_lib/tools/temp_control.h"
+#include "../../board_prj_driver_lib/tools/adc_handler.h"
+#include "../../board_prj_driver_lib/tools/temp_calc.h"
 
 /* USER CODE END Includes */
 
@@ -61,10 +63,10 @@ UART_HandleTypeDef *main_huart = &huart3;
 uint8_t main_uart_byte;
 
 #if HPLD_1000_COUNT > 0
-	uint8_t hpld_1000_can_id[HPLD_1000_COUNT] = {2};
+	uint8_t hpld_1000_can_id[HPLD_1000_COUNT] = {1,2};
 #endif
 #if HPLD_1500_COUNT > 0
-	uint8_t hpld_1500_can_id[HPLD_1500_COUNT] = {1,2,3,4,5,6,7,8,9,10};
+	uint8_t hpld_1500_can_id[HPLD_1500_COUNT] = {3,4,5,6,7,8,9};
 #endif
 #if TEC3_COUNT > 0
 	uint8_t tec3_can_id[TEC3_COUNT] = {3,4,5,6};
@@ -86,6 +88,9 @@ QueueHandle_t tcp_rx_data_queue;
 QueueHandle_t  exti_alarm_queueHandle;
 QueueHandle_t  debugger_queueHandle;
 QueueHandle_t rs232_rx_data_queue;
+
+uint16_t ADC1_data[4];
+uint16_t ADC3_data[3];
 
 /* USER CODE END Variables */
 osThreadId main_taskHandle;
@@ -233,7 +238,7 @@ void h_main_task(void const * argument)
 #endif
 #if HPLD_1000_COUNT > 0
 	for(uint16_t i = 0; i < HPLD_1000_COUNT;i++)
-		hpld_1500_init(&mcs->hpld_1000[i],&hcan1,hpld_1000_can_id[i],&int_can_mess_queue,CanMutexHandle);
+		hpld_1000_init(&mcs->hpld_1000[i],&hcan1,hpld_1000_can_id[i],&int_can_mess_queue,CanMutexHandle);
 #endif
 
 	osThreadResume(server_taskHandle);
@@ -335,18 +340,18 @@ void h_can_send(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-	if(xQueueReceive(send_can_mess_queue,&cm,0) == pdPASS){
-		err = 0;
-		xSemaphoreTake(CanMutexHandle,portMAX_DELAY);
-		for (int8_t reps = repeat; reps > 0; reps --){		
-			can_send_message(cm.h_can, &cm.tx_header, cm.data);
-			err = cm.ack_func(cm.device, cm.cmd_id, 100);
-			if(err == 0)
-				break;
-		}
-		xSemaphoreGive(CanMutexHandle);
-	}
-	else
+//	if(xQueueReceive(send_can_mess_queue,&cm,0) == pdPASS){
+//		err = 0;
+//		xSemaphoreTake(CanMutexHandle,portMAX_DELAY);
+//		for (int8_t reps = repeat; reps > 0; reps --){
+//			can_send_message(cm.h_can, &cm.tx_header, cm.data);
+//			err = cm.ack_func(cm.device, cm.cmd_id, 100);
+//			if(err == 0)
+//				break;
+//		}
+//		xSemaphoreGive(CanMutexHandle);
+//	}
+//	else
 		osDelay(1);
   }
   /* USER CODE END h_can_send */
@@ -363,17 +368,20 @@ void h_tools(void const * argument)
 {
   /* USER CODE BEGIN h_tools */
 	device_struct* mcs = &mcs_storage;
+
+	if(THERMISTOR_COUNT < 2) Error_Handler();
+
 	float *temps_to_check[] = {
-//		&mcs->tec3[0].state.temp,
-//		&mcs->tec3[1].state.temp,
+		&mcs->user_mode.temperature[0],
+		&mcs->user_mode.temperature[1],
 //		&mcs->tec3[2].state.temp,
 //		&mcs->tec3[3].state.temp,
 //		&mcs->cb[0].state.temp[0],
 //		&mcs->cb[0].state.temp[1]
 	};
 	float *temps_max_levels[] = {
-//		&mcs->config.max_tec_temp_level[0],
-//		&mcs->config.max_tec_temp_level[1],
+		&mcs->config.temperature_lvl[0],
+		&mcs->config.temperature_lvl[1],
 //		&mcs->config.max_tec_temp_level[2],
 //		&mcs->config.max_tec_temp_level[3],
 //		&mcs->config.max_cb_temps_level[0],
@@ -383,7 +391,28 @@ void h_tools(void const * argument)
 	const int num_levels = sizeof(temps_max_levels) / sizeof(float);
 	const float unused_fan_temp = -1.0;
 
-	mcs->leds.panel.power.on();
+	adc_link_data(&ADC1_data[0], &mcs->user_mode.temperature[0], ADC_TYPE_TEMP);
+	adc_link_data(&ADC1_data[1], &mcs->user_mode.temperature[1], ADC_TYPE_TEMP);
+	adc_link_data(&ADC1_data[2], &mcs->user_mode.photo[0], ADC_TYPE_VOLT);
+	adc_link_data(&ADC1_data[3], &mcs->user_mode.photo[1], ADC_TYPE_VOLT);
+	adc_link_data(&ADC3_data[1], &mcs->user_mode.photo[2], ADC_TYPE_VOLT);
+	adc_link_data(&ADC3_data[2], &mcs->user_mode.photo[3], ADC_TYPE_VOLT);
+	adc_link_data(&ADC3_data[0], &mcs->user_mode.photo_diff, ADC_TYPE_VOLT);
+#ifndef TB_DEF
+	adc_prepare(hadc1,htim3,TIM_CHANNEL_1,ADC1_data,4);
+	adc_prepare(hadc3,htim3,TIM_CHANNEL_1,ADC3_data,3);
+#else
+	ADC1_data[0] = 2048;
+	ADC1_data[1] = 1000;
+	ADC1_data[2] = 1000;
+	ADC1_data[3] = 1000;
+	ADC3_data[1] = 2048;
+	ADC3_data[2] = 1000;
+	ADC3_data[3] = 1000;
+#endif
+
+	adc_set_therm_parameters(&mcs->config.therm_resi, &mcs->config.therm_beta, &mcs->config.v_ref);
+
   /* Infinite loop */
 	for(;;)
 	{
@@ -396,6 +425,7 @@ void h_tools(void const * argument)
 		mcs->alarms.bits.overheat = overheat;
 
 		mcs->user_mode.output_started = get_emission(mcs);
+		adc_handler(mcs);
 
 		err += get_error(mcs);
 

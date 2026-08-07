@@ -60,9 +60,11 @@ typedef struct {
 	uint32_t   ip [4];
 	uint32_t   mac[6];
 
-	int        term_resi;
-	int        term_beta;
+	int        therm_resi;
+	int        therm_beta;
 	float      v_ref;
+
+	float      temperature_lvl[THERMISTOR_COUNT];
 
 #if HPLD_1000_COUNT > 0
 	float      hpld1000_curr               [HPLD_1000_COUNT];
@@ -76,6 +78,9 @@ config_struct;
 typedef struct
 {
 	int   output_started;
+	float temperature[THERMISTOR_COUNT];
+	float photo[4];
+	float photo_diff;
 }
 user_mode_struct;
 
