@@ -113,7 +113,7 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 
 		//-------------REQUEST TO GET LASER STATUS IS USER MODE-----------
 		if (cmd ("lgstatus usr")) {
-			response ("lrstatus usr %i %i %i %i %i %i %i %i %i\r\n",
+			response ("lrstatus usr %i %i %i %i %i %i %i %i %i %f %f %f %f %f %f %f\r\n",
 					id,
 					mcs->alarms.bits.keylock,
 					mcs->alarms.bits.alarm,
@@ -122,7 +122,14 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 					mcs->alarms.bits.interlock2,
 					mcs->alarms.bits.qbh,
 					mcs->alarms.bits.overheat,
-					mcs->user_mode.output_started
+					mcs->user_mode.output_started,
+					mcs->user_mode.temperature[0],
+					mcs->user_mode.temperature[1],
+					mcs->user_mode.photo[0],
+					mcs->user_mode.photo[1],
+					mcs->user_mode.photo[2],
+					mcs->user_mode.photo[3],
+					mcs->user_mode.photo_diff
 			);
 		}
 		else if (cmd ("lsonoff usr")) {
