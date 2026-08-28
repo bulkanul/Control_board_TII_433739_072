@@ -55,6 +55,9 @@ void MX_GPIO_Init(void)
   __HAL_RCC_GPIOG_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(ALARM_OUT_GPIO_Port, ALARM_OUT_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOE, CS4_Pin|CS3_Pin|CS2_Pin|CS1_Pin
                           |LED_POWER2_Pin|LED_POWER_Pin|LED_EMISSION_Pin|LED_ERROR_Pin, GPIO_PIN_RESET);
 
@@ -65,13 +68,20 @@ void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(PILOT_ON_OFF_GPIO_Port, PILOT_ON_OFF_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : INTERLOCK_1_EXTI_Pin INTERLOCK_2_EXTI_Pin ALARM_EXTI_Pin QBH_EXTI_Pin
-                           KEY_EXTI_Pin EMERGENCY_EXTI_Pin */
-  GPIO_InitStruct.Pin = INTERLOCK_1_EXTI_Pin|INTERLOCK_2_EXTI_Pin|ALARM_EXTI_Pin|QBH_EXTI_Pin
-                          |KEY_EXTI_Pin|EMERGENCY_EXTI_Pin;
+  /*Configure GPIO pins : INTERLOCK_1_EXTI_Pin INTERLOCK_2_EXTI_Pin QBH_EXTI_Pin KEY_EXTI_Pin
+                           EMERGENCY_EXTI_Pin */
+  GPIO_InitStruct.Pin = INTERLOCK_1_EXTI_Pin|INTERLOCK_2_EXTI_Pin|QBH_EXTI_Pin|KEY_EXTI_Pin
+                          |EMERGENCY_EXTI_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : ALARM_OUT_Pin */
+  GPIO_InitStruct.Pin = ALARM_OUT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(ALARM_OUT_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : FLASH_ON_IN_Pin */
   GPIO_InitStruct.Pin = FLASH_ON_IN_Pin;
