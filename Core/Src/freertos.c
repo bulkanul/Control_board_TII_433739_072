@@ -246,6 +246,10 @@ void h_main_task(void const * argument)
 	osThreadResume(can_sendHandle);
 	osThreadResume(toolsTaskHandle);
 
+    for(int i = 0; i < ALARM_PD_COUNT; i ++)
+    	if(mcs->config.alarm_pd_lvl[i] >=0 && mcs->config.alarm_pd_lvl[i] <= 3)
+    		set_pd_level_value(i, mcs->config.alarm_pd_lvl[i]);
+
 	 osThreadDef ( dev_refresh , dev_refresh_task_h, osPriorityNormal, 1, 256);
 	 dev_refresh_taskHandle = osThreadCreate(osThread(dev_refresh), NULL);
 

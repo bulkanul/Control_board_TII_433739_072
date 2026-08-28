@@ -268,16 +268,43 @@ void indication_handler(QueueHandle_t* indication_queue,device_struct* mcs)
 	}
 }
 
-int get_error(device_struct* mcs){
-	alarms_t* alarm = &mcs->alarms;
+int get_usr_err(device_struct* mcs)
+{
+	int err = mcs->alarms.val;
+
+#if HPLD_1000_COUNT > 0
+	for(int i = 0; i < HPLD_1000_COUNT; i++) {
+		err += mcs->hpld_1000[i].available == 0;
+		err += mcs->hpld_1000[i].state.started_state == 0;
+		err += mcs->hpld_1000[i].state.flags != 0;
+	}
+#endif
+
+#if HPLD_1500_COUNT > 0
+	for(int i = 0; i < HPLD_1500_COUNT; i++) {
+		err += mcs->hpld_1500[i].available == 0;
+		err += mcs->hpld_1500[i].state.started_state == 0;
+		err += mcs->hpld_1500[i].state.flags != 0;
+	}
+#endif
+
+	return err;
+}
+
+int get_error(device_struct* mcs)
+{
 	int err = 0;
-	err += alarm->val;
-	return err != 0;
+	err += mcs->alarms.bits.keylock;
+	err += mcs->alarms.bits.interlock1;
+	err += mcs->alarms.bits.interlock2;
+	err += mcs->alarms.bits.overheat;
+	err += mcs->alarms.bits.qbh;
+	err += mcs->alarms.bits.emergency;
+	return err;
 }
 
 void alarm_and_state_handler (device_struct *mcs)
 {
-	mcs->alarms.bits.alarm             = 	is_alarm_ALARM();
 	mcs->alarms.bits.emergency         = 	is_alarm_emergency();
 	mcs->alarms.bits.keylock           =    is_alarm_keylock();
 	mcs->alarms.bits.interlock1        = 	is_alarm_interlock1();

@@ -15,6 +15,7 @@
 #if HPLD_1000_COUNT > 0
 #include "../../board_prj_driver_lib/drivers/HPLD_1000.h"
 #endif
+#include "../../board_prj_driver_lib/drivers/dac_ad5693_driver.h"
 #include "leds.h"
 
 #include <assert.h>
@@ -44,7 +45,6 @@ typedef union alarms_u {
 	struct {
 		uint32_t keylock : 1;
 		uint32_t emergency : 1;
-		uint32_t alarm : 1;
 		uint32_t qbh : 1;
 		uint32_t interlock1 : 1;
 		uint32_t interlock2 : 1;
@@ -79,6 +79,7 @@ config_struct;
 typedef struct
 {
 	int   output_started;
+	int   alarm_off_state;
 	float temperature[THERMISTOR_COUNT];
 	float photo[4];
 	float photo_diff;

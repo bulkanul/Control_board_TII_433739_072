@@ -116,7 +116,7 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 			response ("lrstatus usr %i %i %i %i %i %i %i %i %i %f %f %f %f %f %f %f\r\n",
 					id,
 					mcs->alarms.bits.keylock,
-					mcs->alarms.bits.alarm,
+					mcs->user_mode.alarm_off_state,
 					mcs->alarms.bits.emergency,
 					mcs->alarms.bits.interlock1,
 					mcs->alarms.bits.interlock2,

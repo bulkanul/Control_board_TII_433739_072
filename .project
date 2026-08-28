@@ -41,6 +41,11 @@
 			<locationURI>$%7BPROJECT_LOC%7D/board_prj_driver_lib/drivers/HPLD_1500.c</locationURI>
 		</link>
 		<link>
+			<name>Core/Src/drivers/dac_ad5693_driver.c</name>
+			<type>1</type>
+			<locationURI>$%7BPROJECT_LOC%7D/board_prj_driver_lib/drivers/dac_ad5693_driver.c</locationURI>
+		</link>
+		<link>
 			<name>Core/Src/tools/adc_handler.c</name>
 			<type>1</type>
 			<locationURI>$%7BPROJECT_LOC%7D/board_prj_driver_lib/tools/adc_handler.c</locationURI>
