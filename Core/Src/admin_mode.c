@@ -16,20 +16,65 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 					);
 		}
 		else if (cmd("lsconf admn")) {
-			rd("lsconf admn %i %f\r\n",
+			rd("lsconf admn %i %i %i %f %f %f %f %f %f %f %f %f %f %f %f %f %f\r\n",
 				&id,
-				&conf->hpld1500_curr [0]
+				&conf->therm_resi,
+				&conf->therm_beta,
+				&conf->v_ref,
+				&conf->alarm_pd_lvl[0],
+				&conf->alarm_pd_lvl[1],
+				&conf->alarm_pd_lvl[2],
+				&conf->alarm_pd_lvl[3],
+				&conf->hpld1000_curr[0],
+				&conf->hpld1000_curr[1],
+				&conf->hpld1500_curr[0],
+				&conf->hpld1500_curr[1],
+				&conf->hpld1500_curr[2],
+				&conf->hpld1500_curr[3],
+				&conf->hpld1500_curr[4],
+				&conf->hpld1500_curr[5],
+				&conf->hpld1500_curr[6]
 			);
-			response("lrconf admn %i %f\r\n",
+			response("lrconf admn %i %i %i %f %f %f %f %f %f %f %f %f %f %f %f %f %f\r\n",
 				id,
-				conf->hpld1500_curr [0]
+				conf->therm_resi,
+				conf->therm_beta,
+				conf->v_ref,
+				conf->alarm_pd_lvl[0],
+				conf->alarm_pd_lvl[1],
+				conf->alarm_pd_lvl[2],
+				conf->alarm_pd_lvl[3],
+				conf->hpld1000_curr[0],
+				conf->hpld1000_curr[1],
+				conf->hpld1500_curr[0],
+				conf->hpld1500_curr[1],
+				conf->hpld1500_curr[2],
+				conf->hpld1500_curr[3],
+				conf->hpld1500_curr[4],
+				conf->hpld1500_curr[5],
+				conf->hpld1500_curr[6]
 			);
 		}
 //-----------REQUEST GET CONF ----------------
 		else if (cmd("lgconf admn")) {
-			response("lrconf admn %i %f\r\n",
+			response("lrconf admn %i %i %i %f %f %f %f %f %f %f %f %f %f %f %f %f %f\r\n",
 				id,
-				conf->hpld1500_curr [0]
+				conf->therm_resi,
+				conf->therm_beta,
+				conf->v_ref,
+				conf->alarm_pd_lvl[0],
+				conf->alarm_pd_lvl[1],
+				conf->alarm_pd_lvl[2],
+				conf->alarm_pd_lvl[3],
+				conf->hpld1000_curr[0],
+				conf->hpld1000_curr[1],
+				conf->hpld1500_curr[0],
+				conf->hpld1500_curr[1],
+				conf->hpld1500_curr[2],
+				conf->hpld1500_curr[3],
+				conf->hpld1500_curr[4],
+				conf->hpld1500_curr[5],
+				conf->hpld1500_curr[6]
 			);
 		}
 //-----------REQUEST SET SAVE CONF ------------

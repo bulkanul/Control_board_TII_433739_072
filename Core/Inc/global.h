@@ -64,7 +64,8 @@ typedef struct {
 	int        therm_beta;
 	float      v_ref;
 
-	float      temperature_lvl[THERMISTOR_COUNT];
+	float      temperature_lvl             [THERMISTOR_COUNT];
+	float      alarm_pd_lvl                [ALARM_PD_COUNT];
 
 #if HPLD_1000_COUNT > 0
 	float      hpld1000_curr               [HPLD_1000_COUNT];
