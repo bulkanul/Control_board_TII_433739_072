@@ -92,6 +92,11 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 			err += save_last_config_data(conf, sizeof(config_struct));
 			response("lrsave admn %i OK\r\n",id);
 		}
+		else if (cmd ("lserrclr admn")) {
+			mcs->alarms.val = 0;
+			protection_err_clr(mcs);
+			response ("lrerrclr admn %i\r\n", id);
+		}
 
 		if (err != 0)
 			err_cmd(resp, tcp_buffer, id);
