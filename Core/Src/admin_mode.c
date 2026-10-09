@@ -17,7 +17,7 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 					);
 		}
 		else if (cmd("lsconf admn")) {
-			rd("lsconf admn %i %i %i %f %f %f %f %f %f %i %i %f %f %f %f %f %f %f %f %f %f\r\n",
+			rd("lsconf admn %i %i %i %f %f %f %f %f %f %f %i %i %f %f %f %f %f %f %f %f %f\r\n",
 				&id,
 				&conf->therm_resi,
 				&conf->therm_beta,
@@ -45,7 +45,12 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 		    	if(conf->alarm_pd_lvl[i] >=0 && conf->alarm_pd_lvl[i] <= 3)
 		    		set_pd_level_value(i, conf->alarm_pd_lvl[i]);
 		    }
-			response("lrconf admn %i %i %i %f %f %f %f %f %f %i %i %f %f %f %f %f %f %f %f %f %f\r\n",
+		    for(int i = 0; i < PROTECTION_ONOFF_COUNT; i++)
+		    {
+		    	if(conf->protection_state[i] >= 0 && conf->protection_state[i] <= 1)
+		    		set_protection_state(i, conf->protection_state[i]);
+		    }
+			response("lrconf admn %i %i %i %f %f %f %f %f %f %f %i %i %f %f %f %f %f %f %f %f %f\r\n",
 				id,
 				conf->therm_resi,
 				conf->therm_beta,
@@ -71,7 +76,7 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 		}
 //-----------REQUEST GET CONF ----------------
 		else if (cmd("lgconf admn")) {
-			response("lrconf admn %i %i %i %f %f %f %f %f %f %i %i %f %f %f %f %f %f %f %f %f %f\r\n",
+			response("lrconf admn %i %i %i %f %f %f %f %f %f %f %i %i %f %f %f %f %f %f %f %f %f\r\n",
 				id,
 				conf->therm_resi,
 				conf->therm_beta,

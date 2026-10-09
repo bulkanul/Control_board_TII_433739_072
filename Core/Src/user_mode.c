@@ -156,12 +156,9 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 			int prot_id = -1;
 			rd("lsprot usr %i %i %i\r\n", &id, &prot_id, &i_val);
 			err += (i_val < 0 || i_val > 1);
-			switch (prot_id)
-			{
-				case 0: set_protection1_state(i_val); break;
-				case 1: set_protection2_state(i_val); break;
-				default: err++; break;
-			}
+			err += (prot_id < 0 || prot_id > 1);
+			if(!err)
+				set_protection_state(prot_id, i_val);
 			response("lrprot usr %i %i %i\r\n", id, prot_id, i_val);
 		}
 		if(err != 0)

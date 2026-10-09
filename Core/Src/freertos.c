@@ -250,6 +250,10 @@ void h_main_task(void const * argument)
     	if(mcs->config.alarm_pd_lvl[i] >=0 && mcs->config.alarm_pd_lvl[i] <= 3)
     		set_pd_level_value(i, mcs->config.alarm_pd_lvl[i]);
 
+    for(int i = 0; i < PROTECTION_ONOFF_COUNT; i++)
+    	if(mcs->config.protection_state[i] >= 0 && mcs->config.protection_state[i] <= 1)
+    		set_protection_state(i, mcs->config.protection_state[i]);
+
 	 osThreadDef ( dev_refresh , dev_refresh_task_h, osPriorityNormal, 1, 256);
 	 dev_refresh_taskHandle = osThreadCreate(osThread(dev_refresh), NULL);
 

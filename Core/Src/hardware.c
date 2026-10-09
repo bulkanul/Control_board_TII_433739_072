@@ -53,12 +53,18 @@ void set_pd_level_value(int id, float value)
 	cs_port[id]->BSRR = cs_pin[id];
 }
 
-void set_protection1_state(int value)
+void set_protection_state(int id, int value)
 {
-	HAL_GPIO_WritePin(PROTECTION_ON_OFF_1_GPIO_Port, PROTECTION_ON_OFF_1_Pin, value);
-}
-
-void set_protection2_state(int value)
-{
-	HAL_GPIO_WritePin(PROTECTION_ON_OFF_2_GPIO_Port, PROTECTION_ON_OFF_2_Pin, value);
+	bool b_val = value;
+	b_val = !b_val;
+	value = b_val;
+	GPIO_TypeDef *gpio[] = {
+			PROTECTION_ON_OFF_1_GPIO_Port,
+			PROTECTION_ON_OFF_2_GPIO_Port
+	};
+	uint16_t pin[] = {
+			PROTECTION_ON_OFF_1_Pin,
+			PROTECTION_ON_OFF_2_Pin
+	};
+	HAL_GPIO_WritePin(gpio[id], pin[id], value);
 }
