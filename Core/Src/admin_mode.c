@@ -17,7 +17,7 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 					);
 		}
 		else if (cmd("lsconf admn")) {
-			rd("lsconf admn %i %i %i %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %i %i\r\n",
+			rd("lsconf admn %i %i %i %f %f %f %f %f %f %i %i %f %f %f %f %f %f %f %f %f %f\r\n",
 				&id,
 				&conf->therm_resi,
 				&conf->therm_beta,
@@ -28,6 +28,8 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 				&conf->alarm_pd_lvl[1],
 				&conf->alarm_pd_lvl[2],
 				&conf->alarm_pd_lvl[3],
+				&conf->protection_state[0],
+				&conf->protection_state[1],
 				&conf->hpld1000_curr[0],
 				&conf->hpld1000_curr[1],
 				&conf->hpld1500_curr[0],
@@ -36,16 +38,14 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 				&conf->hpld1500_curr[3],
 				&conf->hpld1500_curr[4],
 				&conf->hpld1500_curr[5],
-				&conf->hpld1500_curr[6],
-				&conf->protection_state[0],
-				&conf->protection_state[1]
+				&conf->hpld1500_curr[6]
 			);
 		    for(int i = 0; i < ALARM_PD_COUNT; i ++)
 		    {
 		    	if(conf->alarm_pd_lvl[i] >=0 && conf->alarm_pd_lvl[i] <= 3)
 		    		set_pd_level_value(i, conf->alarm_pd_lvl[i]);
 		    }
-			response("lrconf admn %i %i %i %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %i %i\r\n",
+			response("lrconf admn %i %i %i %f %f %f %f %f %f %i %i %f %f %f %f %f %f %f %f %f %f\r\n",
 				id,
 				conf->therm_resi,
 				conf->therm_beta,
@@ -56,6 +56,8 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 				conf->alarm_pd_lvl[1],
 				conf->alarm_pd_lvl[2],
 				conf->alarm_pd_lvl[3],
+				conf->protection_state[0],
+				conf->protection_state[1],
 				conf->hpld1000_curr[0],
 				conf->hpld1000_curr[1],
 				conf->hpld1500_curr[0],
@@ -64,14 +66,12 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 				conf->hpld1500_curr[3],
 				conf->hpld1500_curr[4],
 				conf->hpld1500_curr[5],
-				conf->hpld1500_curr[6],
-				conf->protection_state[0],
-				conf->protection_state[1]
+				conf->hpld1500_curr[6]
 			);
 		}
 //-----------REQUEST GET CONF ----------------
 		else if (cmd("lgconf admn")) {
-			response("lrconf admn %i %i %i %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\r\n",
+			response("lrconf admn %i %i %i %f %f %f %f %f %f %i %i %f %f %f %f %f %f %f %f %f %f\r\n",
 				id,
 				conf->therm_resi,
 				conf->therm_beta,
@@ -82,6 +82,8 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 				conf->alarm_pd_lvl[1],
 				conf->alarm_pd_lvl[2],
 				conf->alarm_pd_lvl[3],
+				conf->protection_state[0],
+				conf->protection_state[1],
 				conf->hpld1000_curr[0],
 				conf->hpld1000_curr[1],
 				conf->hpld1500_curr[0],
