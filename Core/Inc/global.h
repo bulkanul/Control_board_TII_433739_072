@@ -103,6 +103,7 @@ typedef struct {
 
 	leds_t                                      leds;
 	alarms_t                                    alarms;
+	int                                         alarm_pd_state      [ALARM_PD_COUNT];
 }
 device_struct;
 

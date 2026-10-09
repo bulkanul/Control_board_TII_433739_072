@@ -12,8 +12,12 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 
 //-----------REQUEST SET CONF ----------------
 		if (cmd("lgstatus admn")){
-			response("lrstatus admn %i\r\n",
-					id
+			response("lrstatus admn %i %i %i %i %i\r\n",
+					id,
+					mcs->alarm_pd_state[0],
+					mcs->alarm_pd_state[1],
+					mcs->alarm_pd_state[2],
+					mcs->alarm_pd_state[3]
 					);
 		}
 		else if (cmd("lsconf admn")) {

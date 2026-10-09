@@ -310,6 +310,8 @@ void alarm_and_state_handler (device_struct *mcs)
 	mcs->alarms.bits.interlock1        = 	is_alarm_interlock1();
 	mcs->alarms.bits.interlock2        = 	is_alarm_interlock2();
 	mcs->alarms.bits.qbh               = 	is_alarm_QBH();
+	for(int i = 0; i < ALARM_PD_COUNT; i ++)
+		mcs->alarm_pd_state[i] = is_alarm_pd(i);
 }
 
 int get_emission(device_struct* mcs){

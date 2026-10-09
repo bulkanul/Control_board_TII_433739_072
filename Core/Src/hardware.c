@@ -34,6 +34,23 @@ bool is_alarm_QBH(void)
 	return HAL_GPIO_ReadPin (QBH_EXTI_GPIO_Port, QBH_EXTI_Pin) == GPIO_PIN_RESET;
 }
 
+bool is_alarm_pd(int id)
+{
+	GPIO_TypeDef *port[] = {
+			ALARM_PD1_GPIO_Port,
+			ALARM_PD2_GPIO_Port,
+			ALARM_PD3_GPIO_Port,
+			ALARM_PD4_GPIO_Port
+	};
+	uint16_t pin[] = {
+			ALARM_PD1_Pin,
+			ALARM_PD2_Pin,
+			ALARM_PD3_Pin,
+			ALARM_PD4_Pin
+	};
+	return HAL_GPIO_ReadPin (port[id], pin[id]) == GPIO_PIN_RESET;
+}
+
 void set_pd_level_value(int id, float value)
 {
 	GPIO_TypeDef* cs_port[] = {

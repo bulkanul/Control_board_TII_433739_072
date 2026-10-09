@@ -10,6 +10,7 @@ bool is_alarm_keylock (void);
 bool is_alarm_interlock1 (void);
 bool is_alarm_interlock2 (void);
 bool is_alarm_QBH(void);
+bool is_alarm_pd(int id);
 void set_pd_level_value(int id, float value);
 void set_protection_state(int id, int value);
 #endif // HARDWARE_H
