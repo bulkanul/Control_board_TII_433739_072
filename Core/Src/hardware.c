@@ -52,3 +52,13 @@ void set_pd_level_value(int id, float value)
 	DAC_AD5693(value);
 	cs_port[id]->BSRR = cs_pin[id];
 }
+
+void set_protection1_state(int value)
+{
+	HAL_GPIO_WritePin(PROTECTION_ON_OFF_1_GPIO_Port, PROTECTION_ON_OFF_1_Pin, value);
+}
+
+void set_protection2_state(int value)
+{
+	HAL_GPIO_WritePin(PROTECTION_ON_OFF_2_GPIO_Port, PROTECTION_ON_OFF_2_Pin, value);
+}

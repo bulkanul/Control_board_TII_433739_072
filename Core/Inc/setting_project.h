@@ -20,6 +20,7 @@
 #define ADMN_COUNT 		          		 (1)
 #define THERMISTOR_COUNT                 (2)
 #define ALARM_PD_COUNT                   (4)
+#define PROTECTION_ONOFF_COUNT           (2)
 
 #define	CAN_IND_REQ                      200
 #define	ETH_IND_REQ                      201

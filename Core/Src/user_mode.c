@@ -151,13 +151,18 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 			protection_err_clr(mcs);
 			response ("lrerrclr usr %i\r\n", id);
 		}
-		//-----------REQUEST TO SET QUANTRON MODE---------
-		else if(cmd("lsmode usr")){
-			rd("lsmode usr %i %i\r\n", &id, &i_val);
+		//-----------REQUEST TO SET PROTECTION STATE---------
+		else if(cmd("lsprot usr")) {
+			int prot_id = -1;
+			rd("lsprot usr %i %i %i\r\n", &id, &prot_id, &i_val);
 			err += (i_val < 0 || i_val > 1);
-//			if(!err)
-//			    err += EVO_SSL_670_15_CONTROL_433739_065_set_mode(&mcs->cb[0], i_val);
-			response("lrmode usr %i %i\r\n", id, i_val);
+			switch (prot_id)
+			{
+				case 0: set_protection1_state(i_val); break;
+				case 1: set_protection2_state(i_val); break;
+				default: err++; break;
+			}
+			response("lrprot usr %i %i %i\r\n", id, prot_id, i_val);
 		}
 		if(err != 0)
 			err_cmd(resp,tcp_buffer,id);

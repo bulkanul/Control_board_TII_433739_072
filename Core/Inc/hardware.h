@@ -11,4 +11,6 @@ bool is_alarm_interlock1 (void);
 bool is_alarm_interlock2 (void);
 bool is_alarm_QBH(void);
 void set_pd_level_value(int id, float value);
+void set_protection1_state(int value);
+void set_protection2_state(int value);
 #endif // HARDWARE_H
