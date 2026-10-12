@@ -36,7 +36,6 @@ void h_usr_ontask(const void *argument )
 	device_struct *mcs = &mcs_storage;
 	uint8_t err = 0;
 
-#if HPLD_1000_COUNT > 0
 	if(err == 0)
 	{
 		protection_err_clr(mcs);
@@ -56,6 +55,18 @@ void h_usr_ontask(const void *argument )
 	}
 #endif
 
+#if HPLD_1500_COUNT > 0
+	if(err == 0)
+	{
+		int tmp_hpld_1500_mode = 0;
+		for(int i = 0; i < HPLD_1500_COUNT; i ++)
+			err = hpld_1500_set_state_and_check(&mcs->hpld_1500[0],
+					1, // onoff
+					tmp_hpld_1500_mode, // mode
+					mcs->config.hpld1500_curr[0]);
+	}
+#endif
+
 	if (err == 0)
 		while (get_usr_ontask_terminator() == false && mcs->hpld_1000[0].state.flags == 0 && err == 0)
 		{
@@ -63,10 +74,14 @@ void h_usr_ontask(const void *argument )
 			get_emission(mcs); // is for update output power value
 			osDelay(100);
 		}
+
+#if HPLD_1500_COUNT > 0
+	for(int i = HPLD_1500_COUNT - 1; i >= 0; i--)
+		hpld_1500_set_state_off(&mcs->hpld_1500[i]);
 #endif
 
 #if HPLD_1000_COUNT > 0
-	for(uint16_t i = 0; i < HPLD_1000_COUNT; i++)
+	for(int i = HPLD_1000_COUNT - 1; i >= 0; i--)
 		hpld_1000_set_state_off(&mcs->hpld_1000[i]);
 #endif
 
@@ -77,9 +92,13 @@ void h_usr_ontask(const void *argument )
 void h_usr_offtask(const void *argument)
 {
 	device_struct *mcs = &mcs_storage ;
-//	set_pocels_state(mcs, 0); // turn on pocels cell
+#if HPLD_1500_COUNT > 0
+	for(int i = HPLD_1500_COUNT - 1; i >= 0; i--)
+		hpld_1500_set_state_off(&mcs->hpld_1500[i]);
+#endif
+
 #if HPLD_1000_COUNT > 0
-	for(uint16_t i = 0; i < HPLD_1000_COUNT; i++)
+	for(int i = HPLD_1000_COUNT - 1; i >= 0; i--)
 		hpld_1000_set_state_off(&mcs->hpld_1000[i]);
 #endif
 
