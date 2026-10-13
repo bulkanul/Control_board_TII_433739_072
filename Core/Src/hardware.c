@@ -65,9 +65,13 @@ void set_pd_level_value(int id, float value)
 			CS3_Pin,
 			CS4_Pin
 	};
-	cs_port[id]->BSRR = (uint32_t)cs_pin[id] << 16U;
+	HAL_GPIO_WritePin(CS1_GPIO_Port, CS1_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(CS2_GPIO_Port, CS2_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(CS3_GPIO_Port, CS3_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(CS4_GPIO_Port, CS4_Pin, GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(cs_port[id], cs_pin[id], GPIO_PIN_SET);
 	DAC_AD5693(value);
-	cs_port[id]->BSRR = cs_pin[id];
+	HAL_GPIO_WritePin(cs_port[id], cs_pin[id], GPIO_PIN_RESET);
 }
 
 void set_protection_state(int id, int value)
