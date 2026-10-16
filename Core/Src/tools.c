@@ -303,6 +303,14 @@ int get_error(device_struct* mcs)
 	return err;
 }
 
+int get_usr_error(device_struct* mcs)
+{
+	int err = 0;
+	err += get_error(mcs);
+	for(int i = 0; i < ALARM_PD_COUNT; i++)
+		err += mcs->alarm_pd_state[i];
+}
+
 void alarm_and_state_handler (device_struct *mcs)
 {
 	mcs->alarms.bits.emergency         = 	is_alarm_emergency();
@@ -347,7 +355,29 @@ void form_cm_header(can_message_struct *cm, int id){
 #endif
 }
 
-int protection_err_clr(device_struct *mcs)
+int preamp_protection_err_clr(device_struct *mcs)
+{
+	int err = 0;
+#if HPLD_1000_COUNT > 0
+	for(int i = 0 ; i < HPLD_1000_COUNT; i ++)
+	{
+		hpld_1000_struct *dev = &mcs->hpld_1000[i];
+		if (dev->available == 1)
+		{
+			int reps = 5;
+			while (reps-- > 0 && dev->state.flags != 0)
+			{
+				err += hpld_1000_rst_protection(dev);
+				hpld_1000_get_flags(dev);
+				osDelay(1);
+			}
+		}
+	}
+#endif
+	return err;
+}
+
+int amp_protection_err_clr(device_struct *mcs)
 {
 	int err = 0;
 #if HPLD_1500_COUNT > 0
@@ -361,22 +391,6 @@ int protection_err_clr(device_struct *mcs)
 			{
 				err += hpld_1500_rst_protection(dev);
 				hpld_1500_get_flags(dev);
-				osDelay(1);
-			}
-		}
-	}
-#endif
-#if HPLD_1000_COUNT > 0
-	for(int i = 0 ; i < HPLD_1000_COUNT; i ++)
-	{
-		hpld_1000_struct *dev = &mcs->hpld_1000[i];
-		if (dev->available == 1)
-		{
-			int reps = 5;
-			while (reps-- > 0 && dev->state.flags != 0)
-			{
-				err += hpld_1000_rst_protection(dev);
-				hpld_1000_get_flags(dev);
 				osDelay(1);
 			}
 		}

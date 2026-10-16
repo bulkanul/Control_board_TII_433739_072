@@ -65,6 +65,8 @@ void set_pd_level_value(int id, float value)
 			CS3_Pin,
 			CS4_Pin
 	};
+	if(id < 0 || id > sizeof(cs_pin)/sizeof(uint16_t))
+		return;
 	HAL_GPIO_WritePin(CS1_GPIO_Port, CS1_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(CS2_GPIO_Port, CS2_Pin, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(CS3_GPIO_Port, CS3_Pin, GPIO_PIN_RESET);
@@ -88,4 +90,12 @@ void set_protection_state(int id, int value)
 			PROTECTION_ON_OFF_2_Pin
 	};
 	HAL_GPIO_WritePin(gpio[id], pin[id], value);
+}
+
+int set_shutdown_state(int value)
+{
+	if(value < 0 || value > 1)
+		return 1;
+	HAL_GPIO_WritePin(SHUTDOWN_GPIO_Port, SHUTDOWN_Pin, value);
+	return 0;
 }

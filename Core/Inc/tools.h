@@ -34,8 +34,10 @@ void indication_handler(QueueHandle_t* indication_queue,device_struct* mcs);
 void form_cm_header(can_message_struct *cm, int id);
 void alarm_and_state_handler(device_struct *mcs);
 int get_error(device_struct* mcs);
+int get_usr_error(device_struct* mcs);
 int get_emission(device_struct* mcs);
-int protection_err_clr(device_struct *mcs);
+int amp_protection_err_clr(device_struct *mcs);
+int preamp_protection_err_clr(device_struct *mcs);
 
 void user_mode_prepare(void);
 int check_type_id (char* data_in,char* type,int max_id);

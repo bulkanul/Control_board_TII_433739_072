@@ -37,40 +37,39 @@ void h_usr_ontask(const void *argument )
 	uint8_t err = 0;
 
 	if(err == 0)
-	{
-		protection_err_clr(mcs);
-		if(mcs->hpld_1000[0].state.flags != 0)
-			err++;
-	}
+		err += preamp_protection_err_clr(mcs);
 
 #if HPLD_1000_COUNT > 0
 	if(err == 0)
 	{
 		int tmp_hpld_1000_mode = 0;
 		for(int i = 0; i < HPLD_1000_COUNT; i ++)
-			err = hpld_1000_set_state_and_check(&mcs->hpld_1000[0],
+			err = hpld_1000_set_state_and_check(&mcs->hpld_1000[i],
 					1, // onoff
 					tmp_hpld_1000_mode, // mode
-					mcs->config.hpld1000_curr[0]);
+					mcs->config.hpld1000_curr[i]);
 	}
 #endif
+
+	if(err == 0)
+		err += amp_protection_err_clr(mcs);
 
 #if HPLD_1500_COUNT > 0
 	if(err == 0)
 	{
 		int tmp_hpld_1500_mode = 0;
 		for(int i = 0; i < HPLD_1500_COUNT; i ++)
-			err = hpld_1500_set_state_and_check(&mcs->hpld_1500[0],
+			err = hpld_1500_set_state_and_check(&mcs->hpld_1500[i],
 					1, // onoff
 					tmp_hpld_1500_mode, // mode
-					mcs->config.hpld1500_curr[0]);
+					mcs->config.hpld1500_curr[i]);
 	}
 #endif
 
 	if (err == 0)
 		while (get_usr_ontask_terminator() == false && mcs->hpld_1000[0].state.flags == 0 && err == 0)
 		{
-			err += get_error(mcs);
+			err += get_usr_error(mcs);
 			get_emission(mcs); // is for update output power value
 			osDelay(100);
 		}
@@ -165,9 +164,20 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 			}
 			response("lronoff usr %i %d\r\n", id, i_val);
 		}
+		else if (cmd ("lsshutdown usr"))
+		{
+			rd("lsshutdown usr %i %d", &id, &i_val);
+			err += (i_val < 0 || i_val > 1);
+			if(!err)
+				err+=set_shutdown_state(i_val);
+			if(!err)
+				mcs->user_mode.alarm_off_state = i_val;
+			response("lrshutdown usr %i %i", id, i_val);
+		}
 		else if (cmd ("lserrclr usr")) {
 			mcs->alarms.val = 0;
-			protection_err_clr(mcs);
+			preamp_protection_err_clr(mcs);
+			amp_protection_err_clr(mcs);
 			response ("lrerrclr usr %i\r\n", id);
 		}
 		//-----------REQUEST TO SET PROTECTION STATE---------
