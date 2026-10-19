@@ -81,6 +81,9 @@ config_struct;
 typedef struct
 {
 	int   output_started;
+	float set_power;
+	float output_power;
+	
 	int   alarm_off_state;
 	float temperature[THERMISTOR_COUNT];
 	float photo[4];

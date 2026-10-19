@@ -433,6 +433,17 @@ void h_tools(void const * argument)
 		mcs->alarms.bits.overheat = overheat;
 
 		mcs->user_mode.output_started = get_emission(mcs);
+		{
+			float summ_max_curr = 0.0f;
+			float summ_curr = 0.0f;
+			for(int i = 0; i < HPLD_1500_COUNT; i++)
+			{
+				summ_max_curr += mcs->config.hpld1500_curr[i];
+				summ_curr += mcs->hpld_1500[i].state.current;
+			}
+			mcs->user_mode.output_power = summ_curr/summ_max_curr * 100.0f;
+		}		
+		
 		adc_handler(mcs);
 
 		err += get_error(mcs);

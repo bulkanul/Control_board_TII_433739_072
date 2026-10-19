@@ -71,6 +71,17 @@ void h_usr_ontask(const void *argument )
 		{
 			err += get_usr_error(mcs);
 			get_emission(mcs); // is for update output power value
+
+			if(!err)
+			{
+				for(int i = 0; i < HPLD_1500_COUNT; i++)
+				{
+					float current = mcs->user_mode.set_power/100.0f * mcs->config.hpld1500_curr[i];
+
+					if(abs_f(mcs->hpld_1500[i].state.current - current) > HPLD_1500_CURRENT_TOLERANCE)
+						hpld_1500_set_current(&mcs->hpld_1500[i], current);
+				}
+			}
 			osDelay(100);
 		}
 
@@ -127,11 +138,12 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 	int id = check_type_id(tcp_buffer, "usr", 1);
 	if (id != -1) {
 		int i_val;
+		float f_val;
 		int err = 0;
 
 		//-------------REQUEST TO GET LASER STATUS IS USER MODE-----------
 		if (cmd ("lgstatus usr")) {
-			response ("lrstatus usr %i %i %i %i %i %i %i %i %i %f %f %f %f %f %f %f\r\n",
+			response ("lrstatus usr %i %i %i %i %i %i %i %i %i %f %f %f %f %f %f %f %f %f\r\n",
 					id,
 					mcs->alarms.bits.keylock,
 					mcs->user_mode.alarm_off_state,
@@ -141,6 +153,8 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 					mcs->alarms.bits.qbh,
 					mcs->alarms.bits.overheat,
 					mcs->user_mode.output_started,
+					mcs->user_mode.set_power,
+					mcs->user_mode.output_power,
 					mcs->user_mode.temperature[0],
 					mcs->user_mode.temperature[1],
 					mcs->user_mode.photo[0],
@@ -179,6 +193,14 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 			preamp_protection_err_clr(mcs);
 			amp_protection_err_clr(mcs);
 			response ("lrerrclr usr %i\r\n", id);
+		}
+		else if (cmd ("lspower usr")) {
+			rd("lspower usr %i %f", &id, &f_val);
+			if(f_val < 0.0f || f_val > 100.0f)
+				err++;
+			if(!err)
+				mcs->user_mode.set_power = f_val;
+			response("lrpower usr %i %f\r\n", id, f_val);
 		}
 		//-----------REQUEST TO SET PROTECTION STATE---------
 		else if(cmd("lsprot usr")) {

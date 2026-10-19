@@ -39,10 +39,10 @@
 #define ADC_AVERAGE_COUNT	             150
 
 #if HPLD_1500_COUNT > 0
-#define HPLD_1500_CURRENT_TOLERANCE      (0.2)
+#define HPLD_1500_CURRENT_TOLERANCE      (0.07)
 #endif
 #if HPLD_1000_COUNT > 0
-#define HPLD_1000_CURRENT_TOLERANCE      (0.2)
+#define HPLD_1000_CURRENT_TOLERANCE      (0.07)
 #endif
 #define AFTER_START_TEMP_STABILIZE_TIME  (180)          //sec
 #define AFTER_START_DELAY                (10)           //sec
