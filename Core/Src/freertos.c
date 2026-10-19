@@ -227,6 +227,7 @@ void h_main_task(void const * argument)
 	}
 
 	leds_init (&mcs->leds);
+	set_shutdown_state(0);
 
 	can_configure_filters(&hcan1, MCS_CAN_ID);
 	can_start_module(&hcan1);

@@ -94,6 +94,9 @@ void set_protection_state(int id, int value)
 
 int set_shutdown_state(int value)
 {
+	bool b_val = value;
+	b_val = !b_val;
+	value = b_val;
 	if(value < 0 || value > 1)
 		return 1;
 	HAL_GPIO_WritePin(SHUTDOWN_GPIO_Port, SHUTDOWN_Pin, value);
