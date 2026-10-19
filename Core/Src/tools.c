@@ -309,6 +309,7 @@ int get_usr_error(device_struct* mcs)
 	err += get_error(mcs);
 	for(int i = 0; i < ALARM_PD_COUNT; i++)
 		err += mcs->alarm_pd_state[i];
+	return err;
 }
 
 void alarm_and_state_handler (device_struct *mcs)
