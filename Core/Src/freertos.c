@@ -187,7 +187,7 @@ void MX_FREERTOS_Init(void) {
   can_sendHandle = osThreadCreate(osThread(can_send), NULL);
 
   /* definition and creation of toolsTask */
-  osThreadDef(toolsTask, h_tools, osPriorityIdle, 0, 512);
+  osThreadDef(toolsTask, h_tools, osPriorityNormal, 0, 512);
   toolsTaskHandle = osThreadCreate(osThread(toolsTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
