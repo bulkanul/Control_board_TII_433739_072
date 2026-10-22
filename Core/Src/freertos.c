@@ -85,6 +85,7 @@ QueueHandle_t int_can_mess_queue;
 QueueHandle_t send_can_mess_queue;
 QueueHandle_t link_queueHandle;
 QueueHandle_t tcp_rx_data_queue;
+volatile uint8_t tcp_rx_overflow = 0;
 QueueHandle_t  exti_alarm_queueHandle;
 QueueHandle_t  debugger_queueHandle;
 QueueHandle_t rs232_rx_data_queue;
@@ -96,7 +97,6 @@ uint16_t ADC3_data[3];
 osThreadId main_taskHandle;
 osThreadId indi_taskHandle;
 osThreadId server_taskHandle;
-osThreadId can_sendHandle;
 osThreadId toolsTaskHandle;
 osMutexId CanMutexHandle;
 
@@ -109,7 +109,6 @@ void dev_refresh_task_h(const void *argument);
 void h_main_task(void const * argument);
 void h_indi_task(void const * argument);
 void h_server_task(void const * argument);
-void h_can_send(void const * argument);
 void h_tools(void const * argument);
 
 extern void MX_LWIP_Init(void);
@@ -141,6 +140,8 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
 	read_last_config_data(&mcs_storage.config);
 
+	default_conf(&mcs_storage.config);
+	save_last_config_data(&mcs_storage.config, sizeof(mcs_storage.config));
   /* USER CODE END Init */
   /* Create the mutex(es) */
   /* definition and creation of CanMutex */
@@ -182,10 +183,6 @@ void MX_FREERTOS_Init(void) {
   osThreadDef(server_task, h_server_task, osPriorityNormal, 0, 2048);
   server_taskHandle = osThreadCreate(osThread(server_task), NULL);
 
-  /* definition and creation of can_send */
-  osThreadDef(can_send, h_can_send, osPriorityNormal, 0, 1024);
-  can_sendHandle = osThreadCreate(osThread(can_send), NULL);
-
   /* definition and creation of toolsTask */
   osThreadDef(toolsTask, h_tools, osPriorityNormal, 0, 512);
   toolsTaskHandle = osThreadCreate(osThread(toolsTask), NULL);
@@ -194,7 +191,6 @@ void MX_FREERTOS_Init(void) {
 	/* add threads, ... */
   osThreadSuspend(server_taskHandle);
   osThreadSuspend(indi_taskHandle);
-  osThreadSuspend(can_sendHandle);
   osThreadSuspend(toolsTaskHandle);
   /* USER CODE END RTOS_THREADS */
 
@@ -215,9 +211,10 @@ void h_main_task(void const * argument)
 	device_struct *mcs = &mcs_storage;
 	char debug_buffer [1000];
 
-	char tcp_buffer [1000];
+	char tcp_buffer [TCP_QUEUE_BUF_SIZE];
 	char resp [1000];
 	long tcp_buffer_ind = 0 ;
+	int discard_tcp_line = 0;
 
 	for(int try = 0; try < 3;try++){
 		alarm_and_state_handler(mcs);
@@ -244,7 +241,7 @@ void h_main_task(void const * argument)
 
 	osThreadResume(server_taskHandle);
 	osThreadResume(indi_taskHandle);
-	osThreadResume(can_sendHandle);
+//	osThreadResume(can_sendHandle);
 	osThreadResume(toolsTaskHandle);
 
     for(int i = 0; i < ALARM_PD_COUNT; i ++)
@@ -262,26 +259,49 @@ void h_main_task(void const * argument)
 	for(;;)
 	{
 		HAL_UART_Receive_IT ( main_huart , &main_uart_byte , 1 ) ;
-		if (xQueueReceive(tcp_rx_data_queue, &tcp_buffer[tcp_buffer_ind], 0) == pdPASS) {
-			if (tcp_buffer[tcp_buffer_ind] == '\r' || tcp_buffer[tcp_buffer_ind] == '\n')
+		if(tcp_rx_overflow)
+		{
+			tcp_rx_overflow = 0;
+			tcp_buffer_ind = 0;
+			discard_tcp_line = 0;
+		}
+
+		char received_char;
+		if (xQueueReceive(tcp_rx_data_queue, &received_char, 0) == pdPASS) {
+			if(tcp_rx_overflow)
 			{
-				tcp_buffer[tcp_buffer_ind + 1] = '\0';
-				CommandsHandler(mcs, resp, debug_buffer, tcp_buffer, 0);
-				//	memset(tcp_buffer,0,tcp_buffer_ind);
-				tcp_buffer[tcp_buffer_ind] = '\0';
+				tcp_rx_overflow = 0;
 				tcp_buffer_ind = 0;
+				discard_tcp_line = 0;
+				continue;
 			}
-			else if (tcp_buffer_ind < TCP_QUEUE_BUF_SIZE - 2)
+
+			if (received_char == '\r' || received_char == '\n')
 			{
-				//backspase ...
-				if (tcp_buffer[tcp_buffer_ind] == '\b' && tcp_buffer_ind > 0)
-					tcp_buffer_ind--;
+				if(discard_tcp_line)
+					debug_mess("Input command too long; discarded\r\n");
+				else if(tcp_buffer_ind > 0)
+				{
+					tcp_buffer[tcp_buffer_ind] = '\0';
+					CommandsHandler(mcs, resp, debug_buffer, tcp_buffer, 0);
+				}
+				tcp_buffer_ind = 0;
+				discard_tcp_line = 0;
+			}
+			else if(!discard_tcp_line)
+			{
+				if(received_char == '\b')
+				{
+					if(tcp_buffer_ind > 0)
+						tcp_buffer_ind--;
+				}
+				else if(tcp_buffer_ind < TCP_QUEUE_BUF_SIZE - 1)
+					tcp_buffer[tcp_buffer_ind++] = received_char;
 				else
-					tcp_buffer_ind++;
-			}
-			else
-			{
-				tcp_buffer_ind = 0;
+				{
+					tcp_buffer_ind = 0;
+					discard_tcp_line = 1;
+				}
 			}
 		}
 		else {
@@ -331,39 +351,6 @@ void h_server_task(void const * argument)
 		server_handler(&tcp_rx_data_queue,&ind_queueHandle);
 	}
   /* USER CODE END h_server_task */
-}
-
-/* USER CODE BEGIN Header_h_can_send */
-/**
-* @brief Function implementing the can_send thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_h_can_send */
-void h_can_send(void const * argument)
-{
-  /* USER CODE BEGIN h_can_send */
-	can_message_struct_tx cm;
-	int repeat = 5;
-	int err =0;
-  /* Infinite loop */
-  for(;;)
-  {
-//	if(xQueueReceive(send_can_mess_queue,&cm,0) == pdPASS){
-//		err = 0;
-//		xSemaphoreTake(CanMutexHandle,portMAX_DELAY);
-//		for (int8_t reps = repeat; reps > 0; reps --){
-//			can_send_message(cm.h_can, &cm.tx_header, cm.data);
-//			err = cm.ack_func(cm.device, cm.cmd_id, 100);
-//			if(err == 0)
-//				break;
-//		}
-//		xSemaphoreGive(CanMutexHandle);
-//	}
-//	else
-		osDelay(1);
-  }
-  /* USER CODE END h_can_send */
 }
 
 /* USER CODE BEGIN Header_h_tools */

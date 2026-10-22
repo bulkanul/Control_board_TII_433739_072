@@ -1,2 +1,2 @@
 #define GIT_INFO_PRESENT
- static const char* GIT_INFO = "Version Information=[df8c9d6869914362003939e205836f8a74bf042f, (HEAD -> master, origin/master, origin/HEAD)]\r\n";
+ static const char* GIT_INFO = "Version Information=[a12529325a09ccb4d9ad2b7b8aa5cb28b390f0ff, (HEAD -> hybrid-vscode-and-cubeIDE-version, origin/hybrid-vscode-and-cubeIDE-version)]\r\n";

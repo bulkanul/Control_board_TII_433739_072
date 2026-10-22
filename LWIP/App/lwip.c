@@ -7,7 +7,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2025 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -28,7 +28,7 @@
 #include "ethernetif.h"
 
 /* USER CODE BEGIN 0 */
-#include "server.h"
+#include "tools.h"
 /* USER CODE END 0 */
 /* Private function prototypes -----------------------------------------------*/
 static void ethernet_link_status_updated(struct netif *netif);
@@ -36,7 +36,7 @@ static void ethernet_link_status_updated(struct netif *netif);
 void Error_Handler(void);
 
 /* USER CODE BEGIN 1 */
-#include "tools.h"
+
 /* USER CODE END 1 */
 
 /* Variables Initialization */
@@ -76,6 +76,7 @@ void MX_LWIP_Init(void)
   IP_ADDRESS[1] = get_CONF_IP()[1] ;
   IP_ADDRESS[2] = get_CONF_IP()[2] ;
   IP_ADDRESS[3] = get_CONF_IP()[3] ;
+
 /* USER CODE END IP_ADDRESSES */
 
   /* Initialize the LwIP stack with RTOS */
@@ -105,7 +106,7 @@ void MX_LWIP_Init(void)
 /* USER CODE END H7_OS_THREAD_DEF_CREATE_CMSIS_RTOS_V1 */
 
 /* USER CODE BEGIN 3 */
-  ethernetif_notify_conn_changed(&gnetif);
+
 /* USER CODE END 3 */
 }
 
@@ -126,13 +127,13 @@ static void ethernet_link_status_updated(struct netif *netif)
   if (netif_is_up(netif))
   {
 /* USER CODE BEGIN 5 */
-	  ethernetif_notify_conn_changed(netif);
+	  netif_set_up(netif);
 /* USER CODE END 5 */
   }
   else /* netif is down */
   {
 /* USER CODE BEGIN 6 */
-	  ethernetif_notify_conn_changed(netif);
+	  netif_set_down(netif);
 /* USER CODE END 6 */
   }
 }
