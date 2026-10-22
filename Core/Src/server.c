@@ -17,7 +17,7 @@ void server_handler(QueueHandle_t* tcp_rx_data_queue,QueueHandle_t* indication_q
 	err_t listen_err = ERR_CONN;
 	err_t recv_err   = ERR_CONN;
 	
-	struct netbuf* buf;
+	struct netbuf* buf = NULL;
 
 	uint8_t link_state = 0;
 	uint8_t tmp;
@@ -83,36 +83,57 @@ void server_handler(QueueHandle_t* tcp_rx_data_queue,QueueHandle_t* indication_q
 					else
 					{
 						set_interface_in(INTERFACE_ETHERNET);
+						buf = NULL;
 						recv_err = netconn_recv(ms_remote_client, &buf);
-						if(buf != NULL)
+						if(recv_err == ERR_OK)
 						{
-							if(recv_err == ERR_OK && buf->p->len != 0)
+							if(buf == NULL)
 							{
-
-// buffer processing put here begin
-								for(int i = 0; i < buf->p->len; i ++)
-								{
-									if(xQueueSend(*tcp_rx_data_queue,(buf->p->payload + i),0) == pdPASS)
-									{
-// OK processing
-									}
-									else
-									{
-// ERROR processing
-									}
-								}
-// buffer processing put here end
-
-								tmp = ETH_IND_REQ;
-								if(xQueueSend(*indication_queue,&tmp,0) != pdPASS)
-																{
-								//Обработка ошибки
-																}
-
-								netbuf_next(buf);
-								netbuf_delete(buf);
-								recv_ok_timeout_last_tick = osKernelSysTick();
+								debug_mess("TCP receive returned no buffer\r\n");
+								recv_err = ERR_CONN;
 							}
+							else
+							{
+								do
+								{
+									void *payload;
+									u16_t payload_len;
+									err_t data_err = netbuf_data(buf, &payload, &payload_len);
+									if(data_err != ERR_OK)
+									{
+										debug_mess("TCP receive buffer read failed\r\n");
+										recv_err = ERR_CONN;
+										break;
+									}
+
+									for(u16_t i = 0; i < payload_len; i++)
+									{
+										if(xQueueSend(*tcp_rx_data_queue, (char *)payload + i, portMAX_DELAY) != pdPASS)
+										{
+											debug_mess("TCP receive queue send failed\r\n");
+											recv_err = ERR_CONN;
+											break;
+										}
+									}
+									if(recv_err != ERR_OK)
+										break;
+								} while(netbuf_next(buf) >= 0);
+								netbuf_delete(buf);
+								buf = NULL;
+
+								if(recv_err == ERR_OK)
+								{
+									tmp = ETH_IND_REQ;
+									if(xQueueSend(*indication_queue, &tmp, 0) != pdPASS)
+										debug_mess("TCP indication queue is full\r\n");
+									recv_ok_timeout_last_tick = osKernelSysTick();
+								}
+							}
+						}
+						else if(buf != NULL)
+						{
+							netbuf_delete(buf);
+							buf = NULL;
 						}
 						else
 						{
@@ -152,7 +173,6 @@ void server_handler(QueueHandle_t* tcp_rx_data_queue,QueueHandle_t* indication_q
 			if(ms_remote_client != NULL)
 			{
 			//	struct tcp_pcb* tcp = ms_remote_client->pcb.tcp;
-				netbuf_delete(buf);
 				netconn_close(ms_remote_client);
 				netconn_delete(ms_remote_client);
 				ms_remote_client = NULL;
