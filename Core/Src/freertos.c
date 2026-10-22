@@ -139,9 +139,6 @@ void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackTy
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
 	read_last_config_data(&mcs_storage.config);
-
-	default_conf(&mcs_storage.config);
-	save_last_config_data(&mcs_storage.config, sizeof(mcs_storage.config));
   /* USER CODE END Init */
   /* Create the mutex(es) */
   /* definition and creation of CanMutex */
