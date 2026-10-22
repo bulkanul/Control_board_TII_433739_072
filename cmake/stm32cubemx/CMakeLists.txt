@@ -35,8 +35,6 @@ set(MX_Include_Dirs
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/Third_Party/LwIP/src/include/compat/stdc
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Middlewares/Third_Party/LwIP/system/arch
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/CMSIS/Include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../board_prj_driver_lib/drivers
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../board_prj_driver_lib/tools
 )
 
 # STM32CubeMX generated application sources
