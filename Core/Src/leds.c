@@ -11,6 +11,8 @@ static void led_yellow_off (void) { LED_YELLOW_GPIO_Port->BSRR = (uint32_t)LED_Y
 
 static void led_power_on (void) { LED_POWER_GPIO_Port->BSRR = (uint32_t)LED_POWER_Pin; }
 static void led_power_off (void) { LED_POWER_GPIO_Port->BSRR = (uint32_t)LED_POWER_Pin << 16U; }
+static void led_ps_active_on (void) { LED_POWER2_GPIO_Port->BSRR = (uint32_t)LED_POWER2_Pin; }
+static void led_ps_active_off (void) { LED_POWER2_GPIO_Port->BSRR = (uint32_t)LED_POWER2_Pin << 16U; }
 static void led_emission_on (void) { LED_EMISSION_GPIO_Port->BSRR = (uint32_t)LED_EMISSION_Pin; }
 static void led_emission_off (void) { LED_EMISSION_GPIO_Port->BSRR = (uint32_t)LED_EMISSION_Pin << 16U; }
 static void led_error_on (void) { LED_ERROR_GPIO_Port->BSRR = (uint32_t)LED_ERROR_Pin; }
@@ -27,6 +29,8 @@ void leds_init (leds_t* leds)
 
     leds->panel.power.on = led_power_on;
     leds->panel.power.off = led_power_off;
+    leds->panel.ps_active.on = led_ps_active_on;
+    leds->panel.ps_active.off = led_ps_active_off;
     leds->panel.emission.on = led_emission_on;
     leds->panel.emission.off = led_emission_off;
     leds->panel.error.on = led_error_on;
