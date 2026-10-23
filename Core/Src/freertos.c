@@ -438,6 +438,12 @@ void h_tools(void const * argument)
 
 		err += get_error(mcs);
 
+		// check if any HPLD is available, just in case, if it is not available, we should turn red led on
+		for(int i = 0; i < HPLD_1000_COUNT; i++)
+			err += !mcs->hpld_1000[i].available;
+		for(int i = 0; i < HPLD_1500_COUNT; i++)
+			err += !mcs->hpld_1500[i].available;
+
 		// internal leds control
 		(mcs->user_mode.output_started == 0)?mcs->leds.panel.emission.off():mcs->leds.panel.emission.on();
 		(err == 0)?mcs->leds.panel.error.off():mcs->leds.panel.error.on();

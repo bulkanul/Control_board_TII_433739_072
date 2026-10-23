@@ -73,7 +73,10 @@ void h_usr_ontask(const void *argument )
 		while (get_usr_ontask_terminator() == false && mcs->hpld_1000[0].state.flags == 0 && err == 0)
 		{
 			err += get_usr_error(mcs);
-			get_emission(mcs); // is for update output power value
+
+			// check if error we shutdown immediately
+			if(err)
+				set_shutdown_state(1);
 
 			if(!err)
 			{

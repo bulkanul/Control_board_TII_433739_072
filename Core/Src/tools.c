@@ -309,6 +309,10 @@ int get_usr_error(device_struct* mcs)
 	err += get_error(mcs);
 	for(int i = 0; i < ALARM_PD_COUNT; i++)
 		err += mcs->alarm_pd_state[i];
+	for(int i = 0; i < HPLD_1000_COUNT; i++)
+		err += !mcs->hpld_1000[i].available;
+	for(int i = 0; i < HPLD_1500_COUNT; i++)
+		err += !mcs->hpld_1500[i].available;
 	return err;
 }
 
