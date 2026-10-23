@@ -36,37 +36,40 @@ void h_usr_ontask(const void *argument )
 	device_struct *mcs = &mcs_storage;
 	uint8_t err = 0;
 
-	if(err == 0)
-		err += preamp_protection_err_clr(mcs);
-
+	
 #if HPLD_1000_COUNT > 0
-	if(err == 0)
-	{
-		int tmp_hpld_1000_mode = 0;
-		for(int i = 0; i < HPLD_1000_COUNT; i ++)
-			err = hpld_1000_set_state_and_check(&mcs->hpld_1000[i],
+	for(int i = 0; i < HPLD_1000_COUNT && !err; i++)
+	{	
+		if(!err)
+			err += preamp_protection_err_clr(mcs);
+
+		if(!err)
+			err += hpld_1000_set_state_and_check(&mcs->hpld_1000[i],
 					1, // onoff
-					tmp_hpld_1000_mode, // mode
-					0.1);
+					0, // mode
+					&mcs->config.hpld1000_curr[i]); // current
+
+		if(err)
+			set_shutdown_state(1);
 	}
 #endif
 
-	if(err == 0)
+	if(!err)
 		err += amp_protection_err_clr(mcs);
 
 #if HPLD_1500_COUNT > 0
-	if(err == 0)
+	if(!err)
 	{
 		int tmp_hpld_1500_mode = 0;
 		for(int i = 0; i < HPLD_1500_COUNT; i ++)
-			err = hpld_1500_set_state_and_check(&mcs->hpld_1500[i],
+			err += hpld_1500_set_state_and_check(&mcs->hpld_1500[i],
 					1, // onoff
 					tmp_hpld_1500_mode, // mode
-					0.1);
+					&mcs->config.hpld1500_diode_treshold[i]);
 	}
 #endif
 
-	if (err == 0)
+	if (!err)
 		while (get_usr_ontask_terminator() == false && mcs->hpld_1000[0].state.flags == 0 && err == 0)
 		{
 			err += get_usr_error(mcs);
@@ -76,7 +79,7 @@ void h_usr_ontask(const void *argument )
 			{
 				for(int i = 0; i < HPLD_1500_COUNT; i++)
 				{
-					float current = mcs->user_mode.set_power/100.0f * mcs->config.hpld1500_curr[i];
+					float current = mcs->user_mode.set_power/100.0f * (mcs->config.hpld1500_curr[i] - mcs->config.hpld1500_diode_treshold[i]) + mcs->config.hpld1500_diode_treshold[i];
 
 					if(abs_f(mcs->hpld_1500[i].state.current - current) > HPLD_1500_CURRENT_TOLERANCE)
 						hpld_1500_set_current(&mcs->hpld_1500[i], current);

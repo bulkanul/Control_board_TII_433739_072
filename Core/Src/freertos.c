@@ -425,10 +425,13 @@ void h_tools(void const * argument)
 			float summ_curr = 0.0f;
 			for(int i = 0; i < HPLD_1500_COUNT; i++)
 			{
-				summ_max_curr += mcs->config.hpld1500_curr[i];
-				summ_curr += mcs->hpld_1500[i].state.current;
+				summ_max_curr += mcs->config.hpld1500_curr[i] - mcs->config.hpld1500_diode_treshold[i];
+				summ_curr += mcs->hpld_1500[i].state.current - mcs->config.hpld1500_diode_treshold[i];
 			}
-			mcs->user_mode.output_power = summ_curr/summ_max_curr * 100.0f;
+			if(summ_max_curr > 0.0f)
+				mcs->user_mode.output_power = summ_curr/summ_max_curr * 100.0f;
+			else
+				mcs->user_mode.output_power = 0.0f;
 		}		
 		
 		adc_handler(mcs);
