@@ -21,7 +21,7 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 					);
 		}
 		else if (cmd("lsconf admn")) {
-			rd("lsconf admn %i %i %i %f %f %f %f %f %f %f %i %i %f %f %f %f %f %f %f %f %f\r\n",
+			rd("lsconf admn %i %i %i %f %f %f %f %f %f %f %i %i %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\r\n",
 				&id,
 				&conf->therm_resi,
 				&conf->therm_beta,
@@ -42,7 +42,14 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 				&conf->hpld1500_curr[3],
 				&conf->hpld1500_curr[4],
 				&conf->hpld1500_curr[5],
-				&conf->hpld1500_curr[6]
+				&conf->hpld1500_curr[6],
+				&conf->hpld1500_diode_treshold[0],
+				&conf->hpld1500_diode_treshold[1],
+				&conf->hpld1500_diode_treshold[2],
+				&conf->hpld1500_diode_treshold[3],
+				&conf->hpld1500_diode_treshold[4],
+				&conf->hpld1500_diode_treshold[5],
+				&conf->hpld1500_diode_treshold[6]
 			);
 		    for(int i = 0; i < ALARM_PD_COUNT; i ++)
 		    {
@@ -54,7 +61,7 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 		    	if(conf->protection_state[i] >= 0 && conf->protection_state[i] <= 1)
 		    		set_protection_state(i, conf->protection_state[i]);
 		    }
-			response("lrconf admn %i %i %i %f %f %f %f %f %f %f %i %i %f %f %f %f %f %f %f %f %f\r\n",
+			response("lrconf admn %i %i %i %f %f %f %f %f %f %f %i %i %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\r\n",
 				id,
 				conf->therm_resi,
 				conf->therm_beta,
@@ -75,12 +82,19 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 				conf->hpld1500_curr[3],
 				conf->hpld1500_curr[4],
 				conf->hpld1500_curr[5],
-				conf->hpld1500_curr[6]
+				conf->hpld1500_curr[6],
+				conf->hpld1500_diode_treshold[0],
+				conf->hpld1500_diode_treshold[1],
+				conf->hpld1500_diode_treshold[2],
+				conf->hpld1500_diode_treshold[3],
+				conf->hpld1500_diode_treshold[4],
+				conf->hpld1500_diode_treshold[5],
+				conf->hpld1500_diode_treshold[6]
 			);
 		}
 //-----------REQUEST GET CONF ----------------
 		else if (cmd("lgconf admn")) {
-			response("lrconf admn %i %i %i %f %f %f %f %f %f %f %i %i %f %f %f %f %f %f %f %f %f\r\n",
+			response("lrconf admn %i %i %i %f %f %f %f %f %f %f %i %i %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f\r\n",
 				id,
 				conf->therm_resi,
 				conf->therm_beta,
@@ -101,7 +115,14 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 				conf->hpld1500_curr[3],
 				conf->hpld1500_curr[4],
 				conf->hpld1500_curr[5],
-				conf->hpld1500_curr[6]
+				conf->hpld1500_curr[6],
+				conf->hpld1500_diode_treshold[0],
+				conf->hpld1500_diode_treshold[1],
+				conf->hpld1500_diode_treshold[2],
+				conf->hpld1500_diode_treshold[3],
+				conf->hpld1500_diode_treshold[4],
+				conf->hpld1500_diode_treshold[5],
+				conf->hpld1500_diode_treshold[6]
 			);
 		}
 //-----------REQUEST SET SAVE CONF ------------

@@ -72,6 +72,7 @@ typedef struct {
 #endif
 #if HPLD_1500_COUNT > 0
 	float      hpld1500_curr               [HPLD_1500_COUNT];
+	float      hpld1500_diode_treshold     [HPLD_1500_COUNT];
 
 	int 	   protection_state            [PROTECTION_ONOFF_COUNT];
 #endif
