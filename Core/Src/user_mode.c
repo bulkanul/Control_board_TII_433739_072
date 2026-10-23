@@ -47,7 +47,7 @@ void h_usr_ontask(const void *argument )
 			err += hpld_1000_set_state_and_check(&mcs->hpld_1000[i],
 					1, // onoff
 					0, // mode
-					&mcs->config.hpld1000_curr[i]); // current
+					mcs->config.hpld1000_curr[i]); // current
 
 		if(err)
 			set_shutdown_state(1);
@@ -65,7 +65,7 @@ void h_usr_ontask(const void *argument )
 			err += hpld_1500_set_state_and_check(&mcs->hpld_1500[i],
 					1, // onoff
 					tmp_hpld_1500_mode, // mode
-					&mcs->config.hpld1500_diode_treshold[i]);
+					mcs->config.hpld1500_diode_treshold[i]);
 	}
 #endif
 
