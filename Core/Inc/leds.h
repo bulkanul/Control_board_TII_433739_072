@@ -16,6 +16,7 @@ typedef struct board_s {
 
 typedef struct panel_s {
     led_t power;
+    led_t ps_active;
     led_t emission;
     led_t error;
 } panel_t;
