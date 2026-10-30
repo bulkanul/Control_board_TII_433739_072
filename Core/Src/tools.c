@@ -300,8 +300,9 @@ int get_error(device_struct* mcs)
 	err += mcs->alarms.bits.overheat;
 	err += mcs->alarms.bits.qbh;
 	err += mcs->alarms.bits.emergency;
-	// added first forward PD state, to control ERROR LED
-	err += mcs->alarm_pd_state[0];
+	// added all PD state, to control ERROR LED
+	for(int i = 0; i < ALARM_PD_COUNT; i++)
+		err += mcs->alarm_pd_state[i];
 	return err;
 }
 
