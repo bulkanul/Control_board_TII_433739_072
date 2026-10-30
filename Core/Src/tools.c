@@ -325,11 +325,19 @@ void alarm_and_state_handler (device_struct *mcs)
 	mcs->alarms.bits.interlock1        = 	is_alarm_interlock1();
 	mcs->alarms.bits.interlock2        = 	is_alarm_interlock2();
 	mcs->alarms.bits.qbh               = 	is_alarm_QBH();
-	
+
 	mcs->alarm_pd_state[0] = is_alarm_pd(0);
 	mcs->alarm_pd_state[1] = is_alarm_pd(1);
-	if(mcs->hpld_1000[0].state.started_state == 1 || mcs->hpld_1000[1].state.started_state == 1)
-		mcs->alarm_pd_state[2] = is_alarm_pd(2);
+
+	// we check if any HPLD is started, if yes, we set alarm_pd_state[2] to 1, as it is 1 physically
+	if(is_alarm_pd(2))
+	{
+		if(mcs->hpld_1000[0].state.started_state == 1 || mcs->hpld_1000[1].state.started_state == 1)
+			mcs->alarm_pd_state[2] = 1;
+	}
+	else
+		mcs->alarm_pd_state[2] = 0;
+
 	mcs->alarm_pd_state[3] = is_alarm_pd(3);
 }
 
