@@ -82,11 +82,14 @@ config_struct;
 typedef struct
 {
 	int   output_started;
+	int   preamp_started;
 	float set_power;
 	float output_power;
 	
 	int   alarm_off_state;
 	float temperature[THERMISTOR_COUNT];
+	
+	int   alarm_pd_user_state[ALARM_PD_COUNT];
 	float photo[4];
 	float photo_diff;
 }

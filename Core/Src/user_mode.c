@@ -55,6 +55,9 @@ void h_usr_ontask(const void *argument )
 #endif
 
 	if(!err)
+		mcs->user_mode.preamp_started = 1;
+
+	if(!err)
 		err += amp_protection_err_clr(mcs);
 
 #if HPLD_1500_COUNT > 0
@@ -149,7 +152,7 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 
 		//-------------REQUEST TO GET LASER STATUS IS USER MODE-----------
 		if (cmd ("lgstatus usr")) {
-			response ("lrstatus usr %i %i %i %i %i %i %i %i %i %f %f %f %f %f %f %f %f %f\r\n",
+			response ("lrstatus usr %i %i %i %i %i %i %i %i %i %f %f %f %f %i %i %i %i %f %f %f %f %f\r\n",
 					id,
 					mcs->alarms.bits.keylock,
 					mcs->user_mode.alarm_off_state,
@@ -163,6 +166,10 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 					mcs->user_mode.output_power,
 					mcs->user_mode.temperature[0],
 					mcs->user_mode.temperature[1],
+					mcs->user_mode.alarm_pd_user_state[0],
+					mcs->user_mode.alarm_pd_user_state[1],
+					mcs->user_mode.alarm_pd_user_state[2],
+					mcs->user_mode.alarm_pd_user_state[3],
 					mcs->user_mode.photo[0],
 					mcs->user_mode.photo[1],
 					mcs->user_mode.photo[2],

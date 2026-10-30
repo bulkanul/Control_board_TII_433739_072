@@ -319,6 +319,21 @@ int get_usr_error(device_struct* mcs)
 	return err;
 }
 
+void filter_alarms_for_user(device_struct* mcs)
+{
+	mcs->user_mode.alarm_pd_user_state[0] = mcs->alarm_pd_state[0];
+	mcs->user_mode.alarm_pd_user_state[1] = mcs->alarm_pd_state[1];
+	// we check if any HPLD is started, if yes, we set alarm_pd_state[2] to 1, as it is 1 physically
+	if(mcs->alarm_pd_state[2])
+	{
+		if(mcs->user_mode.preamp_started == 1)
+			mcs->user_mode.alarm_pd_user_state[2] = 1;
+	}
+	else
+		mcs->user_mode.alarm_pd_user_state[2] = 0;
+	mcs->user_mode.alarm_pd_user_state[3] = mcs->alarm_pd_state[3];
+}
+
 void alarm_and_state_handler (device_struct *mcs)
 {
 	mcs->alarms.bits.emergency         = 	is_alarm_emergency();
@@ -327,19 +342,12 @@ void alarm_and_state_handler (device_struct *mcs)
 	mcs->alarms.bits.interlock2        = 	is_alarm_interlock2();
 	mcs->alarms.bits.qbh               = 	is_alarm_QBH();
 
-	mcs->alarm_pd_state[0] = is_alarm_pd(0);
-	mcs->alarm_pd_state[1] = is_alarm_pd(1);
+	// admin actual alarms
+	for(int i = 0; i < ALARM_PD_COUNT; i++)
+		mcs->alarm_pd_state[i] = is_alarm_pd(i);
 
-	// we check if any HPLD is started, if yes, we set alarm_pd_state[2] to 1, as it is 1 physically
-	if(is_alarm_pd(2))
-	{
-		if(mcs->hpld_1000[0].state.started_state == 1 || mcs->hpld_1000[1].state.started_state == 1)
-			mcs->alarm_pd_state[2] = 1;
-	}
-	else
-		mcs->alarm_pd_state[2] = 0;
-
-	mcs->alarm_pd_state[3] = is_alarm_pd(3);
+	// user filtered alarms
+	filter_alarms_for_user(mcs);
 }
 
 int get_emission(device_struct* mcs){

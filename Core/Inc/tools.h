@@ -32,6 +32,7 @@ int  save_last_config_data(config_struct* source_struct, int conf_struct_size);
 float abs_f(float c);
 void indication_handler(QueueHandle_t* indication_queue,device_struct* mcs);
 void form_cm_header(can_message_struct *cm, int id);
+void filter_alarms_for_user(device_struct* mcs);
 void alarm_and_state_handler(device_struct *mcs);
 int get_error(device_struct* mcs);
 int get_usr_error(device_struct* mcs);
