@@ -36,6 +36,17 @@ enable_language(C ASM)
 # Create an executable object type
 add_executable(${CMAKE_PROJECT_NAME})
 
+add_custom_target(generate_git_info
+    COMMAND ${CMAKE_COMMAND}
+        "-DGIT_EXECUTABLE=${GIT_EXECUTABLE}"
+        "-DREPOSITORY_DIR=${CMAKE_SOURCE_DIR}"
+        "-DOUTPUT_FILE=${CMAKE_SOURCE_DIR}/Core/Inc/gitcommit.h"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateGitInfo.cmake"
+    COMMENT "Generating Git commit information"
+    VERBATIM
+)
+add_dependencies(${CMAKE_PROJECT_NAME} generate_git_info)
+
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
 
