@@ -325,8 +325,12 @@ void alarm_and_state_handler (device_struct *mcs)
 	mcs->alarms.bits.interlock1        = 	is_alarm_interlock1();
 	mcs->alarms.bits.interlock2        = 	is_alarm_interlock2();
 	mcs->alarms.bits.qbh               = 	is_alarm_QBH();
-	for(int i = 0; i < ALARM_PD_COUNT; i ++)
-		mcs->alarm_pd_state[i] = is_alarm_pd(i);
+	
+	mcs->alarm_pd_state[0] = is_alarm_pd(0);
+	mcs->alarm_pd_state[1] = is_alarm_pd(1);
+	if(mcs->hpld_1000[0].state.started_state == 1 || mcs->hpld_1000[1].state.started_state == 1)
+		mcs->alarm_pd_state[2] = is_alarm_pd(2);
+	mcs->alarm_pd_state[3] = is_alarm_pd(3);
 }
 
 int get_emission(device_struct* mcs){
