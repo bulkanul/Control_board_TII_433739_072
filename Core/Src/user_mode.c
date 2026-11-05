@@ -50,7 +50,7 @@ void h_usr_ontask(const void *argument )
 					mcs->config.hpld1000_curr[i]); // current
 
 		if(err)
-			set_shutdown_state(1);
+			set_shutdown_state(mcs, 1);
 	}
 #endif
 
@@ -79,7 +79,7 @@ void h_usr_ontask(const void *argument )
 
 			// check if error we shutdown immediately
 			if(err)
-				set_shutdown_state(1);
+				set_shutdown_state(mcs, 1);
 
 			if(!err)
 			{
@@ -196,9 +196,7 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 			rd("lsshutdown usr %i %d", &id, &i_val);
 			err += (i_val < 0 || i_val > 1);
 			if(!err)
-				err+=set_shutdown_state(i_val);
-			if(!err)
-				mcs->user_mode.alarm_off_state = i_val;
+				err+=set_shutdown_state(mcs, i_val);
 			response("lrshutdown usr %i %i", id, i_val);
 		}
 		else if (cmd ("lserrclr usr")) {

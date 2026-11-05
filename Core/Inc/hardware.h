@@ -2,8 +2,8 @@
 #define HARDWARE_H
 
 #include "global.h"
-
 #include <stdbool.h>
+
 bool is_alarm_ALARM (void);
 bool is_alarm_emergency (void);
 bool is_alarm_keylock (void);
@@ -13,5 +13,5 @@ bool is_alarm_QBH(void);
 bool is_alarm_pd(int id);
 void set_pd_level_value(int id, float value);
 void set_protection_state(int id, int value);
-int set_shutdown_state(int value);
+int set_shutdown_state(device_struct *mcs, int value);
 #endif // HARDWARE_H

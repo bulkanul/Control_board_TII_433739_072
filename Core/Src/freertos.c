@@ -223,7 +223,7 @@ void h_main_task(void const * argument)
 	leds_init (&mcs->leds);
 	mcs->leds.panel.power.on();
 	mcs->leds.panel.ps_active.on();
-	set_shutdown_state(0);
+	set_shutdown_state(mcs, 0);
 
 	can_configure_filters(&hcan1, MCS_CAN_ID);
 	can_start_module(&hcan1);

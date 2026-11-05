@@ -92,13 +92,14 @@ void set_protection_state(int id, int value)
 	HAL_GPIO_WritePin(gpio[id], pin[id], value);
 }
 
-int set_shutdown_state(int value)
+int set_shutdown_state(device_struct *mcs, int value)
 {
+	if(value < 0 || value > 1)
+		return 1;
+	mcs->user_mode.alarm_off_state = value;
 	bool b_val = value;
 	b_val = !b_val;
 	value = b_val;
-	if(value < 0 || value > 1)
-		return 1;
 	HAL_GPIO_WritePin(SHUTDOWN_GPIO_Port, SHUTDOWN_Pin, value);
 	return 0;
 }
