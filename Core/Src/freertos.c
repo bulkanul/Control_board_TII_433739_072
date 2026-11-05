@@ -420,6 +420,9 @@ void h_tools(void const * argument)
 		mcs->alarms.bits.overheat = overheat;
 
 		mcs->user_mode.output_started = get_emission(mcs);
+		if(mcs->user_mode.output_started == 0)
+			mcs->user_mode.preamp_started = 0;
+		
 		{
 			float summ_max_curr = 0.0f;
 			float summ_curr = 0.0f;
