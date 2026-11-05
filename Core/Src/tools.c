@@ -302,7 +302,7 @@ int get_error(device_struct* mcs)
 	err += mcs->alarms.bits.emergency;
 	// added all PD state, to control ERROR LED
 	for(int i = 0; i < ALARM_PD_COUNT; i++)
-		err += mcs->alarm_pd_state[i];
+		err += mcs->user_mode.alarm_pd_user_state[i];
 	return err;
 }
 
