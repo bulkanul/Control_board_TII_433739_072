@@ -96,12 +96,18 @@ void h_usr_ontask(const void *argument )
 
 #if HPLD_1500_COUNT > 0
 	for(int i = HPLD_1500_COUNT - 1; i >= 0; i--)
+	{
 		hpld_1500_set_state_off(&mcs->hpld_1500[i]);
+		osDelay(1);
+	}
 #endif
 
 #if HPLD_1000_COUNT > 0
 	for(int i = HPLD_1000_COUNT - 1; i >= 0; i--)
+	{
 		hpld_1000_set_state_off(&mcs->hpld_1000[i]);
+		osDelay(1);
+	}
 #endif
 
 	set_usr_ontask_state(false);
@@ -113,12 +119,18 @@ void h_usr_offtask(const void *argument)
 	device_struct *mcs = &mcs_storage ;
 #if HPLD_1500_COUNT > 0
 	for(int i = HPLD_1500_COUNT - 1; i >= 0; i--)
+	{
 		hpld_1500_set_state_off(&mcs->hpld_1500[i]);
+		osDelay(1);
+	}
 #endif
 
 #if HPLD_1000_COUNT > 0
 	for(int i = HPLD_1000_COUNT - 1; i >= 0; i--)
+	{
 		hpld_1000_set_state_off(&mcs->hpld_1000[i]);
+		osDelay(1);
+	}
 #endif
 
 	set_usr_offtask_state(false);
