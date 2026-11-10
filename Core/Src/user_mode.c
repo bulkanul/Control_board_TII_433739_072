@@ -75,12 +75,8 @@ void h_usr_ontask(const void *argument )
 	if (!err)
 		while (get_usr_ontask_terminator() == false && mcs->hpld_1000[0].state.flags == 0 && err == 0)
 		{
+			osDelay(100);
 			err += get_usr_error(mcs);
-
-			// check if error we shutdown immediately
-			if(err)
-				set_shutdown_state(mcs, 1);
-
 			if(!err)
 			{
 				for(int i = 0; i < HPLD_1500_COUNT; i++)
@@ -91,24 +87,11 @@ void h_usr_ontask(const void *argument )
 						hpld_1500_set_current(&mcs->hpld_1500[i], current);
 				}
 			}
-			osDelay(100);
 		}
 
-#if HPLD_1500_COUNT > 0
-	for(int i = HPLD_1500_COUNT - 1; i >= 0; i--)
-	{
-		hpld_1500_set_state_off(&mcs->hpld_1500[i]);
-		osDelay(1);
-	}
-#endif
-
-#if HPLD_1000_COUNT > 0
-	for(int i = HPLD_1000_COUNT - 1; i >= 0; i--)
-	{
-		hpld_1000_set_state_off(&mcs->hpld_1000[i]);
-		osDelay(1);
-	}
-#endif
+	// check if error we shutdown immediately
+	if(err)
+		set_shutdown_state(mcs, 1);
 
 	set_usr_ontask_state(false);
   	osThreadTerminate(NULL);
