@@ -36,13 +36,12 @@ void h_usr_ontask(const void *argument )
 	device_struct *mcs = &mcs_storage;
 	uint8_t err = 0;
 
+	if(!err)
+		err += preamp_protection_err_clr(mcs);
 	
 #if HPLD_1000_COUNT > 0
 	for(int i = 0; i < HPLD_1000_COUNT && !err; i++)
 	{	
-		if(!err)
-			err += preamp_protection_err_clr(mcs);
-
 		if(!err)
 			err += hpld_1000_set_state_and_check(&mcs->hpld_1000[i],
 					1, // onoff

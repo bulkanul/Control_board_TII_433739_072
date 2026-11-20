@@ -1,20 +1,42 @@
 #include "server.h"
 #include "tools.h"
 #include "netif.h"
+#include "lwip/tcpip.h"
 
-extern ip4_addr_t     ipaddr;
 extern QueueHandle_t link_queueHandle;
-extern ETH_HandleTypeDef heth;
 extern struct netif gnetif;
 extern volatile uint8_t tcp_rx_overflow;
 
 struct netconn *ms_server_inst   = NULL;
 struct netconn *ms_remote_client = NULL;
 
+static err_t delete_netconn(struct netconn **conn)
+{
+	err_t err;
+
+	if(*conn == NULL)
+		return ERR_OK;
+
+	err = netconn_delete(*conn);
+	if(err == ERR_OK)
+		*conn = NULL;
+
+	return err;
+}
+
+static void abort_netconn_tcp(struct netconn *conn)
+{
+	if(conn == NULL)
+		return;
+
+	LOCK_TCPIP_CORE();
+	if(conn->pcb.tcp != NULL)
+		tcp_abort(conn->pcb.tcp);
+	UNLOCK_TCPIP_CORE();
+}
+
 void server_handler(QueueHandle_t* tcp_rx_data_queue,QueueHandle_t* indication_queue){
 
-	char debug_buffer[200];
-	
 	err_t bind_err   = ERR_CONN;
 	err_t accept_err = ERR_CONN;
 	err_t listen_err = ERR_CONN;
@@ -22,52 +44,38 @@ void server_handler(QueueHandle_t* tcp_rx_data_queue,QueueHandle_t* indication_q
 	
 	struct netbuf* buf = NULL;
 
-	uint8_t tmp;
 	uint8_t discard_tcp_line = 0;
 	uint32_t recv_ok_timeout_last_tick = 0;
-//	char tmp_char;
 
-/* Infinite loop */
 	for(;;)
 	{
-		if(netif_is_up(&gnetif))
+		if(netif_is_up(&gnetif) && netif_is_link_up(&gnetif))
 		{
 			if(ms_server_inst == NULL)
 			{
 				ms_server_inst = netconn_new(NETCONN_TCP);
-				if(ms_server_inst == NULL)
-				{
-					debug_mess("Unable to allocate TCP server connection\r\n");
-					osDelay(100);
-					continue;
-				}
+				if(ms_server_inst == NULL) { osDelay(100); continue; }
 			}
 
-			if(bind_err != ERR_OK)
-			{
-				bind_err = netconn_bind(ms_server_inst, NULL, SERVER_PORT);
-				sprintf(debug_buffer,"Bind static IP Address: %u.%u.%u.%u\r\n", (uint8_t)((uint32_t)(ipaddr.addr)&0x000000ff),
-																				(uint8_t)(((uint32_t)(ipaddr.addr)&0x0000ff00)>>8),
-																				(uint8_t)(((uint32_t)(ipaddr.addr)&0x00ff0000)>>16),
-																				(uint8_t)(((uint32_t)(ipaddr.addr)&0xff000000)>>24));
-				debug_mess(debug_buffer);
-				sprintf(debug_buffer,"Bind port: %i\r\n",SERVER_PORT);
-				debug_mess(debug_buffer);
-			}
+			if(bind_err != ERR_OK) { bind_err = netconn_bind(ms_server_inst, NULL, SERVER_PORT); }
 			else
 			{
-				if(listen_err != ERR_OK)
-				{
-					listen_err = netconn_listen(ms_server_inst);
-					sprintf(debug_buffer,"Whait for client connecting to: %i ...\r\n",SERVER_PORT);
-				  debug_mess(debug_buffer);
-				}
+				if(listen_err != ERR_OK) { listen_err = netconn_listen(ms_server_inst); }
 				else
 				{
 					if(accept_err != ERR_OK)
 					{
+						if(ms_remote_client != NULL)
+						{
+							abort_netconn_tcp(ms_remote_client);
+							if(delete_netconn(&ms_remote_client) != ERR_OK)
+							{
+								osDelay(1);
+								continue;
+							}
+						}
+
 						netconn_set_nonblocking(ms_server_inst,1);
-						netconn_set_recvtimeout(ms_server_inst,200);
 
 						accept_err = netconn_accept(ms_server_inst, &ms_remote_client);
 
@@ -76,12 +84,16 @@ void server_handler(QueueHandle_t* tcp_rx_data_queue,QueueHandle_t* indication_q
 							discard_tcp_line = 0;
 							set_console_mode(DISABLE);
 							netconn_set_recvtimeout(ms_remote_client,200);
-							sprintf(debug_buffer,"Connection established whith: %u.%u.%u.%u\r\n", (uint8_t)((uint32_t)(ms_remote_client->pcb.ip->remote_ip.addr)&0x000000ff),
-																								  (uint8_t)(((uint32_t)(ms_remote_client->pcb.ip->remote_ip.addr)&0x0000ff00)>>8),
-																								  (uint8_t)(((uint32_t)(ms_remote_client->pcb.ip->remote_ip.addr)&0x00ff0000)>>16),
-																								  (uint8_t)(((uint32_t)(ms_remote_client->pcb.ip->remote_ip.addr)&0xff000000)>>24));
-						  debug_mess(debug_buffer);
-						  recv_ok_timeout_last_tick = osKernelSysTick();
+							recv_ok_timeout_last_tick = osKernelSysTick();
+						}
+						else if(accept_err != ERR_WOULDBLOCK)
+						{
+							if(delete_netconn(&ms_server_inst) == ERR_OK)
+							{
+								bind_err = ERR_CONN;
+								listen_err = ERR_CONN;
+								accept_err = ERR_CONN;
+							}
 						}
 					}
 					else
@@ -98,7 +110,6 @@ void server_handler(QueueHandle_t* tcp_rx_data_queue,QueueHandle_t* indication_q
 								err_t data_err = netbuf_data(buf, &payload, &payload_len);
 								if(data_err != ERR_OK)
 								{
-									debug_mess("TCP receive buffer read failed\r\n");
 									recv_err = ERR_CONN;
 									break;
 								}
@@ -118,7 +129,6 @@ void server_handler(QueueHandle_t* tcp_rx_data_queue,QueueHandle_t* indication_q
 										tcp_rx_overflow = 1;
 										xQueueReset(*tcp_rx_data_queue);
 										discard_tcp_line = 1;
-										debug_mess("TCP receive queue full; dropping input until end of line\r\n");
 									}
 								}
 							} while(netbuf_next(buf) >= 0);
@@ -128,9 +138,8 @@ void server_handler(QueueHandle_t* tcp_rx_data_queue,QueueHandle_t* indication_q
 
 							if(recv_err == ERR_OK)
 							{
-								tmp = ETH_IND_REQ;
-								if(xQueueSend(*indication_queue,&tmp,0) != pdPASS)
-									debug_mess("TCP indication queue is full\r\n");
+								uint8_t tmp = ETH_IND_REQ;
+								xQueueSend(*indication_queue,&tmp,0);
 								recv_ok_timeout_last_tick = osKernelSysTick();
 							}
 						}
@@ -143,7 +152,6 @@ void server_handler(QueueHandle_t* tcp_rx_data_queue,QueueHandle_t* indication_q
 							}
 							if(recv_err == ERR_OK)
 							{
-								debug_mess("TCP receive returned no buffer\r\n");
 								recv_err = ERR_CONN;
 							}
 							if(get_console_mode() == ENABLE)
@@ -153,24 +161,15 @@ void server_handler(QueueHandle_t* tcp_rx_data_queue,QueueHandle_t* indication_q
 									recv_err = ERR_CLSD;
 								}
 							}
-							else
-							{
-								if(osKernelSysTick() - recv_ok_timeout_last_tick > RECV_OK_TIMEOUT)
-								{
-							//		recv_err = ERR_CLSD;
-								}
-							}
 						}
 
 						if(recv_err != ERR_OK && recv_err != ERR_TIMEOUT && recv_err != ERR_WOULDBLOCK)
 						{
-							debug_mess("Client disconnected\r\n");
 							accept_err = recv_err;
 							if(ms_remote_client != NULL)
 							{
-								netconn_close(ms_remote_client);
-								netconn_delete(ms_remote_client);
-								ms_remote_client = NULL;
+								abort_netconn_tcp(ms_remote_client);
+								delete_netconn(&ms_remote_client);
 							}
 							discard_tcp_line = 0;
 						}
@@ -182,13 +181,16 @@ void server_handler(QueueHandle_t* tcp_rx_data_queue,QueueHandle_t* indication_q
 		{
 			if(ms_remote_client != NULL)
 			{
-			//	struct tcp_pcb* tcp = ms_remote_client->pcb.tcp;
-				netconn_close(ms_remote_client);
-				netconn_delete(ms_remote_client);
-				ms_remote_client = NULL;
+				abort_netconn_tcp(ms_remote_client);
+				delete_netconn(&ms_remote_client);
 				discard_tcp_line = 0;
-				//if(tcp)
-				//	tcp_abort(tcp);
+			}
+			if(ms_server_inst != NULL)
+				delete_netconn(&ms_server_inst);
+			if(ms_server_inst == NULL)
+			{
+				bind_err = ERR_CONN;
+				listen_err = ERR_CONN;
 			}
 
 			accept_err = ERR_CONN;
@@ -199,21 +201,6 @@ void server_handler(QueueHandle_t* tcp_rx_data_queue,QueueHandle_t* indication_q
 	}
 
 }
-
-void ethernetif_notify_conn_changed(struct netif *netif){
-	uint8_t link_state;
-	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-	if(netif_is_link_up(netif)){
-		link_state = 1;
-		netif_set_up(netif);
-	}
-	else {
-		link_state = 0;
-		netif_set_down(netif);
-	}
-	xQueueSendFromISR(link_queueHandle,&link_state,&xHigherPriorityTaskWoken);
-}
-
 
 struct netconn* getRemoteClient(){
 	return ms_remote_client;
