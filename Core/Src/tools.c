@@ -294,44 +294,45 @@ int get_usr_err(device_struct* mcs)
 int get_error(device_struct* mcs)
 {
 	int err = 0;
-	err += mcs->alarms.bits.keylock;
-	err += mcs->alarms.bits.interlock1;
-	err += mcs->alarms.bits.interlock2;
-	err += mcs->alarms.bits.overheat;
-	err += mcs->alarms.bits.qbh;
-	err += mcs->alarms.bits.emergency;
+	err += mcs->user_mode.alarms_user_state.bits.keylock;
+	err += mcs->user_mode.alarms_user_state.bits.interlock1;
+	err += mcs->user_mode.alarms_user_state.bits.interlock2;
+	err += mcs->user_mode.alarms_user_state.bits.overheat;
+	err += mcs->user_mode.alarms_user_state.bits.qbh;
+	err += mcs->user_mode.alarms_user_state.bits.emergency;
 	// added all PD state, to control ERROR LED
 	for(int i = 0; i < ALARM_PD_COUNT; i++)
 		err += mcs->user_mode.alarm_pd_user_state[i];
 	return err;
 }
 
-int get_usr_error(device_struct* mcs)
-{
-	int err = 0;
-	err += get_error(mcs);
-	for(int i = 0; i < ALARM_PD_COUNT; i++)
-		err += mcs->alarm_pd_state[i];
-	for(int i = 0; i < HPLD_1000_COUNT; i++)
-		err += !mcs->hpld_1000[i].available;
-	for(int i = 0; i < HPLD_1500_COUNT; i++)
-		err += !mcs->hpld_1500[i].available;
-	return err;
-}
-
+// here we are choosing what params interprete as an error in which condition
 void filter_alarms_for_user(device_struct* mcs)
 {
-	mcs->user_mode.alarm_pd_user_state[0] = mcs->alarm_pd_state[0];
-	mcs->user_mode.alarm_pd_user_state[1] = mcs->alarm_pd_state[1];
+	if(mcs->alarms.bits.emergency  == 1) mcs->user_mode.alarms_user_state.bits.emergency  = 1;
+	if(mcs->alarms.bits.keylock    == 1) mcs->user_mode.alarms_user_state.bits.keylock    = 1;
+	if(mcs->alarms.bits.interlock1 == 1) mcs->user_mode.alarms_user_state.bits.interlock1 = 1;
+	if(mcs->alarms.bits.interlock2 == 1) mcs->user_mode.alarms_user_state.bits.interlock2 = 1;
+	if(mcs->alarms.bits.qbh        == 1) mcs->user_mode.alarms_user_state.bits.qbh        = 1;
+	if(mcs->alarms.bits.overheat   == 1) mcs->user_mode.alarms_user_state.bits.overheat   = 1;
+
+	if(mcs->alarm_pd_state[0]      == 1) mcs->user_mode.alarm_pd_user_state[0] = 1;
+	if(mcs->alarm_pd_state[1]      == 1) mcs->user_mode.alarm_pd_user_state[1] = 1;
 	// we check if any HPLD is started, if yes, we set alarm_pd_state[2] to 1, as it is 1 physically
-	if(mcs->alarm_pd_state[2])
+	if(mcs->alarm_pd_state[2] == 1)
 	{
 		if(mcs->user_mode.preamp_started == 1)
 			mcs->user_mode.alarm_pd_user_state[2] = 1;
 	}
-	else
-		mcs->user_mode.alarm_pd_user_state[2] = 0;
-	mcs->user_mode.alarm_pd_user_state[3] = mcs->alarm_pd_state[3];
+	if(mcs->alarm_pd_state[3] == 1)
+		mcs->user_mode.alarm_pd_user_state[3] = 1;
+}
+
+void clear_usr_error(device_struct* mcs)
+{
+	mcs->user_mode.alarms_user_state.val = 0;
+	for(int i = 0; i < ALARM_PD_COUNT; i ++)
+		mcs->user_mode.alarm_pd_user_state[i] = 0;
 }
 
 void alarm_and_state_handler (device_struct *mcs)
@@ -436,16 +437,14 @@ void user_mode_prepare(void)
 			set_usr_ontask_terminator(true);
 			osDelay(10);
 		}
-		usr_ontask_terminator = false;
 	}
-	if(usr_offtask_state == true)
+	if(get_usr_offtask_state() == true)
 	{
 		while(get_usr_offtask_state() == true)
 		{
 			set_usr_offtask_terminator(true);
 			osDelay(10);
 		}
-		set_usr_offtask_terminator(false);
 	}
 	else
 		return;

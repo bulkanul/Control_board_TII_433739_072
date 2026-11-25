@@ -132,6 +132,7 @@ void admin_command(device_struct* mcs, char* resp, char* debug_buffer, char* tcp
 		}
 		else if (cmd ("lserrclr admn")) {
 			mcs->alarms.val = 0;
+			clear_usr_error(mcs);
 			preamp_protection_err_clr(mcs);
 			amp_protection_err_clr(mcs);
 			response ("lrerrclr admn %i\r\n", id);

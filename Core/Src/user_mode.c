@@ -2,6 +2,8 @@
 #include "../Inc/tools.h"
 #include "../Inc/hardware.h"
 
+#include <stdbool.h>
+
 #if AMP_COUNT > 0
 	#include "../Inc/drivers/amp.h"
 #endif
@@ -13,14 +15,11 @@
 	#include "../Inc/drivers/generator.h"
 #endif
 
-#include <stddef.h>
-
 extern device_struct mcs_storage;
-
-int usr_on_task_state = false;
-int usr_on_task_terminator = false;
-int usr_off_task_state = false;
-int usr_off_task_terminator = false;
+extern uint8_t usr_ontask_terminator ;
+extern uint8_t usr_ontask_state      ;
+extern uint8_t usr_offtask_state 	 ;
+extern uint8_t usr_offtask_terminator;
 
 osThreadId usr_ontaskHandle;
 osThreadId usr_offtaskHandle;
@@ -35,6 +34,8 @@ void h_usr_ontask(const void *argument )
 {
 	device_struct *mcs = &mcs_storage;
 	uint8_t err = 0;
+
+	err += get_error(mcs);
 
 	if(!err)
 		err += preamp_protection_err_clr(mcs);
@@ -53,8 +54,12 @@ void h_usr_ontask(const void *argument )
 	}
 #endif
 
+	osDelay(200);
+
 	if(!err)
 		mcs->user_mode.preamp_started = 1;
+
+	osDelay(200);
 
 	if(!err)
 		err += amp_protection_err_clr(mcs);
@@ -75,7 +80,7 @@ void h_usr_ontask(const void *argument )
 		while (get_usr_ontask_terminator() == false && mcs->hpld_1000[0].state.flags == 0 && err == 0)
 		{
 			osDelay(100);
-			err += get_usr_error(mcs);
+			err += get_usr_err(mcs);
 			if(!err)
 			{
 				for(int i = 0; i < HPLD_1500_COUNT; i++)
@@ -122,6 +127,7 @@ void h_usr_offtask(const void *argument)
 void create_usr_offtaskHandle()
 {
 	if(get_usr_offtask_state() == false){
+		set_usr_offtask_terminator(false);
 		set_usr_offtask_state(true);
 		usr_offtaskHandle = osThreadCreate(osThread(usr_offtask), NULL);
 	}
@@ -130,6 +136,7 @@ void create_usr_offtaskHandle()
 void create_usr_ontaskHandle()
 {
 	if(get_usr_ontask_state() == false){
+		set_usr_ontask_terminator(false);
 		set_usr_ontask_state(true);
 		usr_ontaskHandle = osThreadCreate(osThread(usr_ontask), NULL);
 	}
@@ -148,8 +155,8 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 		if (cmd ("lgstatus usr")) {
 			response ("lrstatus usr %i %i %i %i %i %i %i %i %i %f %f %f %f %i %i %i %i %f %f %f %f %f\r\n",
 					id,
-					mcs->alarms.bits.keylock,
 					mcs->user_mode.alarm_off_state,
+					mcs->alarms.bits.keylock,
 					mcs->alarms.bits.emergency,
 					mcs->alarms.bits.interlock1,
 					mcs->alarms.bits.interlock2,
@@ -160,16 +167,31 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 					mcs->user_mode.output_power,
 					mcs->user_mode.temperature[0],
 					mcs->user_mode.temperature[1],
-					mcs->user_mode.alarm_pd_user_state[0],
-					mcs->user_mode.alarm_pd_user_state[1],
-					mcs->user_mode.alarm_pd_user_state[2],
-					mcs->user_mode.alarm_pd_user_state[3],
+					mcs->alarm_pd_state[0],
+					mcs->alarm_pd_state[1],
+					mcs->alarm_pd_state[2],
+					mcs->alarm_pd_state[3],
 					mcs->user_mode.photo[0],
 					mcs->user_mode.photo[1],
 					mcs->user_mode.photo[2],
 					mcs->user_mode.photo[3],
 					mcs->user_mode.photo_diff
 			);
+		}
+		else if (cmd ("lgerror usr"))
+		{
+			response ("lrerror usr %i %i %i %i %i %i %i %i %i %i %i\r\n",
+					id,
+					mcs->user_mode.alarms_user_state.bits.keylock,
+					mcs->user_mode.alarms_user_state.bits.emergency,
+					mcs->user_mode.alarms_user_state.bits.interlock1,
+					mcs->user_mode.alarms_user_state.bits.interlock2,
+					mcs->user_mode.alarms_user_state.bits.qbh,
+					mcs->user_mode.alarms_user_state.bits.overheat,
+					mcs->user_mode.alarm_pd_user_state[0],
+					mcs->user_mode.alarm_pd_user_state[1],
+					mcs->user_mode.alarm_pd_user_state[2],
+					mcs->user_mode.alarm_pd_user_state[3]);
 		}
 		else if (cmd ("lsonoff usr")) {
 			rd("lsonoff usr %i %d", &id, &i_val);
@@ -195,6 +217,7 @@ void user_command (device_struct *mcs, char* resp, char* debug_buffer, char* tcp
 		}
 		else if (cmd ("lserrclr usr")) {
 			mcs->alarms.val = 0;
+			clear_usr_error(mcs);
 			preamp_protection_err_clr(mcs);
 			amp_protection_err_clr(mcs);
 			response ("lrerrclr usr %i\r\n", id);

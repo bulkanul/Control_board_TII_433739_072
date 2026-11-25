@@ -90,6 +90,7 @@ typedef struct
 	float temperature[THERMISTOR_COUNT];
 	
 	int   alarm_pd_user_state[ALARM_PD_COUNT];
+	alarms_t alarms_user_state;
 	float photo[4];
 	float photo_diff;
 }
