@@ -453,7 +453,7 @@ void h_tools(void const * argument)
 
 		// we're not using mcs->user_mode.ld_tec_not_ready because it is only for user loop
 		if(mcs->config.protection_state[0] != 0 && mcs->config.protection_state[1] != 0)
-			if (mcs->user_mode.alarms_user_state.val != 0 && mcs->user_mode.output_started && get_usr_offtask_state() == false) {
+			if (get_error(mcs) != 0 && mcs->user_mode.output_started && get_usr_offtask_state() == false) {
 				user_mode_prepare ();
 				create_usr_offtaskHandle ();
 			}
